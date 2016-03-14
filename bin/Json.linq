@@ -1,0 +1,83 @@
+<Query Kind="Statements">
+  <Connection>
+    <ID>a4c45978-5d31-40c9-a263-9421bd6a63cf</ID>
+    <Persist>true</Persist>
+    <Driver Assembly="IQDriver" PublicKeyToken="5b59726538a49684">IQDriver.IQDriver</Driver>
+    <Provider>Devart.Data.MySql</Provider>
+    <CustomCxString>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAL3HHybTAXUyevAVK/sFNrgAAAAACAAAAAAADZgAAwAAAABAAAACCRzOW190H88gaY8Y3f3SYAAAAAASAAACgAAAAEAAAAPVVo4Y07IdGbqHOoeYCbYBIAAAAw0QJOudi/6lhAZY7UJZwdDgj46LQT1jcS68cwnbog51Sfkj7ifzb8FgkOv2bsobLOywucHlRxfnRX3uUNf1W+zUYil1JbCA9FAAAAN40gTblN5bFfewbyWvmABgHNLdq</CustomCxString>
+    <Server>192.168.0.35</Server>
+    <UserName>frompir</UserName>
+    <Password>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAL3HHybTAXUyevAVK/sFNrgAAAAACAAAAAAADZgAAwAAAABAAAADwxvNcWLoqT7wOSQTxCc61AAAAAASAAACgAAAAEAAAANutJ6NqGFPfIRDVtMBgDcwIAAAAlAIB1msaLxsUAAAAwLP/xLTgEgnzNdFexWeGiEtGYxU=</Password>
+    <Database>frompir</Database>
+    <EncryptCustomCxString>true</EncryptCustomCxString>
+    <DisplayName>.35 From PIR</DisplayName>
+    <DriverData>
+      <StripUnderscores>false</StripUnderscores>
+      <QuietenAllCaps>false</QuietenAllCaps>
+      <ExtraCxOptions>CharSet= utf8;</ExtraCxOptions>
+    </DriverData>
+  </Connection>
+  <Namespace>System.Threading</Namespace>
+  <Namespace>System.Threading.Tasks</Namespace>
+</Query>
+
+{
+	"GeoObjectCollection":
+	{
+		"type":"FeatureCollection",
+		"properties":
+			{
+				"JamsMetaData":
+				{
+					"timestamp":1384145593
+				}
+			},
+		"features":
+			[{
+				 "type":"Feature",
+				 "properties":
+				 {
+				 	"JamsMetaData":
+				 	{
+				 		"timestamp":1384145593,
+				 		"isotime":"2013-11-11T08:53:13+0400",
+				 		"localtime":"08:53",
+				 		"length":312901.740804,
+				 		"level":8,
+				 		"icon":"red",
+				 		"tend":1,
+				 		"region":2
+				 	},
+				 	"name":"РЎР°РЅРєС‚-РџРµС‚РµСЂР±СѓСЂРі"
+				 },
+				 "geometry":
+				 {
+					 "type":"Point",
+					 "coordinates":[30.313497000000002,59.938530999999998]
+				 },
+				 "name":"РЎР°РЅРєС‚-РџРµС‚РµСЂР±СѓСЂРі"
+			},
+			{
+				"type":"Feature",
+				"properties":
+				{
+					"JamsMetaData":
+					{
+						"timestamp":1384145593,
+						"isotime":"2013-11-11T08:53:13+0400",
+						"localtime":"08:53",
+						"length":36021.753195099998,
+						"tend":0,
+						"region":6
+					},
+					"name":"РљР°Р»СѓРіР°"
+				},
+				"geometry":
+				{
+					"type":"Point",
+					"coordinates":[36.267040999999999,54.513832000000001]
+				},
+				"name":"РљР°Р»СѓРіР°"
+			}]
+	}
+}

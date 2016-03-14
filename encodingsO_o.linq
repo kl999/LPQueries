@@ -12,6 +12,7 @@
 </Query>
 
 //Test 2
+//And this goes to master
 
 Encoding.GetEncoding(866).GetString(new byte[] {254}).Dump();
 

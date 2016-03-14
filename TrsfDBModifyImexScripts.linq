@@ -124,9 +124,9 @@ void chngScripts(int groupId)
                 var trueName = "";
                 
                 if(name.Length == 1)
-                    trueName = $"[{schemaName}].[{name[0]}]";
+                    trueName = $"{schemaName}.{name[0]}";
                 else if(name.Length == 2)
-                    trueName = $"[{schemaName}].[{name[1]}]";
+                    trueName = $"{schemaName}.{name[1]}";
                 else
                     throw new Exception("name.Length > 2!!!");
                 
@@ -173,9 +173,9 @@ void chngScripts(int groupId)
                 var trueName = "";
                 
                 if(name.Length == 1)
-                    trueName = $"[{schemaName}].[{name[0]}]";
+                    trueName = $"{schemaName}.{name[0]}";
                 else if(name.Length == 2)
-                    trueName = $"[{schemaName}].[{name[1]}]";
+                    trueName = $"{schemaName}.{name[1]}";
                 else
                     throw new Exception("name.Length > 2!!!");
                 

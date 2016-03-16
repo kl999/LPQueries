@@ -19,7 +19,7 @@
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
-string dbName = "[energopotok]";
+string dbName = "[RudnenskyaEnergoCompany]";
 
 Server srv = new Server(new ServerConnection("tb-impex-db", "ImExDBUser", "123"));
 
@@ -45,7 +45,7 @@ scriptStrBldr.AppendLine();
 
 foreach (Table t in db.Tables)
 {
-    scriptStrBldr.AppendLine("--" + (t.Name));
+    scriptStrBldr.AppendLine($"--{t.Name}---------------------------------------------");
 
     foreach (var s in t.Script(sopt))
     {
@@ -58,14 +58,14 @@ foreach (Table t in db.Tables)
 }
 
 scriptStrBldr.AppendLine();
-scriptStrBldr.AppendLine("------------------");
+scriptStrBldr.AppendLine("--=========================================================================");
 scriptStrBldr.AppendLine();
 
 foreach (StoredProcedure sp in db.StoredProcedures)
 {
     if (sp.IsSystemObject) continue;
 
-    scriptStrBldr.AppendLine("--" + sp.Name);
+    scriptStrBldr.AppendLine($"--{sp.Name}---------------------------------------------");
 
     foreach (var s in sp.Script(sopt))
     {

@@ -22,8 +22,10 @@
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
-string nameToSearch = "Энергопоток";//"Энергопоток";//"Energopotok";//"Шыгысэнерготрейд";
-string schemaName = "Energopotok";
+string nameToSearch = "OskemenVodokanal";//"Энергопоток";//"Energopotok";//"Шыгысэнерготрейд";
+string schemaName = "OskemenVodokanalSimple";
+//MAEKKazatomprom
+//OskemenVodokanal
 List<KeyValuePair<string, XElement>> rezs = new List<KeyValuePair<string, XElement>>();
 
 void Main()
@@ -62,7 +64,28 @@ void chngScripts(int groupId)
     ;
     
     arr
-    .Select(i => new{ name = i.Key, cfg = XElement.Parse(i.Value) })
+    .Select(i =>
+    {
+        XElement el = null;
+        
+        try
+        {
+            el = XElement.Parse(i.Value);
+        }
+        catch(Exception ex)
+        {
+            el = XElement.Parse($@"<Exception>
+                <problem>
+                    <![CDATA[{ex.ToString().Replace("]]>", "]!]>")}]]>
+                </problem>
+                <cfg>
+                    <![CDATA[{i.Value?.ToString().Replace("]]>", "]!]>") ?? "NULL"}]]>
+                </cfg>
+            </Exception>");
+        }
+        
+        return new{ name = i.Key, cfg = el };
+    })
     .Dump();
     
     foreach(var o in arr)
@@ -100,7 +123,7 @@ void chngScripts(int groupId)
             }
             else
             {
-                var tmp = Tbl_SettingEntries.FirstOrDefault(i => i.Name == connectionStr);
+                var tmp = Tbl_SettingEntries.FirstOrDefault(i => i.Name == connectionStr).Dump();
                 
                 if(tmp != null)
                 {
@@ -149,7 +172,7 @@ void chngScripts(int groupId)
             }
             else
             {
-                var tmp = Tbl_SettingEntries.FirstOrDefault(i => i.Name == connectionStr);
+                var tmp = Tbl_SettingEntries.FirstOrDefault(i => i.Name == connectionStr).Dump();
                 
                 if(tmp != null)
                 {

@@ -16,7 +16,7 @@ Convert.ToString(a, 2).Dump("a in binary");
 
 Convert.ToString(18 >> 1, 2).Dump("10010 >> 1");
 
-Convert.ToString(5 << 1, 2).Dump("101 << 1");
+Convert.ToString(5 << 1, 2).Dump($"101 << 1 = {5 << 1}");
 
 Convert.ToString(a = 21 & 12, 2).Dump($"10101 & 1100 = {a}");
 

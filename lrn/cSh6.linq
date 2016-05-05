@@ -1,4 +1,6 @@
 <Query Kind="Program">
+  <Namespace>static System.DayOfWeek</Namespace>
+  <Namespace>static System.Math</Namespace>
   <Namespace>System.Data.Linq.SqlClient</Namespace>
   <Namespace>System.Diagnostics</Namespace>
   <Namespace>System.Drawing</Namespace>
@@ -30,12 +32,47 @@ void Main()
     a.s = "zxc";
     a.lsp.Dump();
     a.lsm().Dump();
+    a[50].Dump();
+    a[2.0].Dump();
+    
+    Sqrt(4).Dump("Sqrt(4)");
+    
+    $"{Thursday + 1} mood".Dump();
+    ((int)Friday).Dump();
+    
+    A nl = null;
+    (nl?.z ?? -1).Dump();
+    nl?.lsm().Dump();
+    
+    //string rez = String.Format("{5}&txn_id={1}&txn_date={3:yyyyMMddHHmmss}&{6}={0}&{4}={2:0.00}",0 paymentRequest.Parameters.Trim(), 1 paymentRequest.SystemId, 2 paymentRequest.Amount / 100.0, 3 paymentRequest.RequestDate, 4 amountName(cfg), 5 PaymentName(cfg), 6 AccountName(cfg));
+    
+    nameof(nl).Dump();
+    
+    try
+    {
+        if(a[10] > 20) throw new Exception("Hello!");
+        throw new Exception("World!");
+    }
+    catch(Exception e) when(e.Message == "Hello!")
+    {
+        e.Message.Dump();
+    }
+    
+    
 }
 
 class A
 {
+    public int z { get; set; } = 3;
+    public int Zx2 { get; } = 6;
+
     public string s = "rty";
     
     public string lsp => "qwe" + s;
     public string lsm() => "vbn" + s;
+    
+    public int this[long id] => new int[id].Select(i => rand.Next(100)).Last();
+    public int this[double id] => Enumerable.Range(20, 40).ToArray()[(int)id];
+    
+    private Random rand = new Random();
 }

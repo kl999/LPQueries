@@ -17,6 +17,7 @@ void Main()
 {
     var main = new FlowLayoutPanel().Dump();
     main.FlowDirection = FlowDirection.TopDown;//LeftToRight;
+    main.AutoSize = true;
     
     var tbarr = new TextBox[10];
     

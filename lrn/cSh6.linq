@@ -58,7 +58,15 @@ void Main()
         e.Message.Dump();
     }
     
+    FormattableString fstr = $"asd{5.7} dt{DateTime.Now}";
+
+    var fstr2 = $"qwerty{17.5}";
+    fstr2.GetType().Dump();
     
+    //FormattableString c = b;
+    
+    Console.WriteLine(fstr.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    Console.WriteLine(fstr.ToString(System.Globalization.CultureInfo.GetCultureInfo("ru-RU")));
 }
 
 class A

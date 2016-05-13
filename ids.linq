@@ -31,15 +31,15 @@ for(;;)
     
     foreach(Match m in ms)
     {
-        var t = el.XPathSelectElement($"item[@value=\"{m.Value}\"]");
-        if(t == null)
-        {
-            maxCt++;
-            var te = new XElement("item");
-            te.SetAttributeValue("id", maxCt);
-            te.SetAttributeValue("value", m.Value);
-            el.Add(te);
-        }
+    var t = el.XPathSelectElement($"item[@value=\"{m.Value}\"]");
+    if(t == null)
+    {
+        maxCt++;
+        var te = new XElement("item");
+        te.SetAttributeValue("id", maxCt);
+        te.SetAttributeValue("value", m.Value);
+        el.Add(te);
+    }
     }
     
     dc.Content = null;

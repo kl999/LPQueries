@@ -57,7 +57,14 @@ class WebServer
 	{
 		try
 		{
-			string filename = Path.GetFileName (context.Request.RawUrl);
+$@"RawUrl: {context.Request.RawUrl}
+QueryString: {context.Request.QueryString.Count}".Dump();
+
+            //url.Scheme, Uri.SchemeDelimiter, url.Authority, url.AbsolutePath, url.Query
+            //[1]http[2]://[3]www.example.com[4]/mypage.aspx[5]?myvalue1=hello&myvalue2=goodbye
+            Uri url = context.Request.Url;
+            
+			string filename = Path.GetFileName (url.AbsolutePath);
 			string path = Path.Combine (_baseFolder, filename);
 			
 			List<byte> msg = new List<byte>();
@@ -90,12 +97,13 @@ class WebServer
 				
 				msg.AddRange(File.ReadAllBytes (path));
 				
-				msg.AddRange(
-					Encoding.UTF8.GetBytes(
-						"\n<p>Changed on: "
-						+ File.GetLastWriteTime(path).ToString()
-						)
-					);
+                if(Path.GetExtension(path).StartsWith(".htm"))
+    				msg.AddRange(
+    					Encoding.UTF8.GetBytes(
+    						"\n<p>Changed on: "
+    						+ File.GetLastWriteTime(path).ToString()
+    						)
+    					);
 			}
 			
 			context.Response.ContentLength64 = msg.Count;
@@ -103,7 +111,7 @@ class WebServer
 			using (Stream s = context.Response.OutputStream)
 				await s.WriteAsync (msg.ToArray(), 0, msg.Count);
 		}
-		catch (Exception ex) 
+		catch (Exception ex)
 		{ Console.WriteLine ("Request error: " + ex); }
 	}
 }

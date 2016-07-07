@@ -49,6 +49,8 @@ doc.SelectNodes ("customers/customer[position() = 1]").Dump("position()");
 
 doc.SelectNodes ("customers/customer[1]").Dump("[1]");
 
+doc.SelectNodes ("customers/customer[@id=\"123\" and @status=\"archived\"]").Dump("AND");
+
 XPathNavigator nav = doc.CreateNavigator();
 
 foreach (XPathNavigator navC in nav.Select ("customers/customer/lastname"))

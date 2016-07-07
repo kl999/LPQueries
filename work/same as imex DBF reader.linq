@@ -17,7 +17,7 @@
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
-var transformedFilePath = @"C:\Users\samartsev\Desktop\TEO.dbf";
+var transformedFilePath = @"C:\Users\samartsev\Desktop\LIZ7.DBF";
 
 DbConnection connection = null;
 if (true)//866
@@ -39,9 +39,11 @@ command.CommandText =
 connection.Open();
 var dataReader = command.ExecuteReader();
 
-for(;dataReader.Read();)
+for(int ct = 0;dataReader.Read(); ct++)
 {
     int len = dataReader.FieldCount;
+    
+    $"{ct}---------------------".Dump();
     
     for(int i = 0; i < len; i++)
         (dataReader.GetName(i) + ": " + dataReader[i]).Dump();

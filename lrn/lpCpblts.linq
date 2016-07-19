@@ -39,6 +39,8 @@ void Main()
     background-color: green;").Dump();
     
     Util.DisplayWebPage("https://www.google.kz/?gfe_rd=cr&ei=zvCEVrq_F8u9wAO3tJHwAQ");
+    
+    new a().Dump("Costum");
 }
 
 void clrScr()
@@ -56,4 +58,22 @@ void clrScr()
     ).Dump();
     
     new Hyperlinq(clrScr, nameof(clrScr)).Dump();
+}
+
+class a : ICustomMemberProvider
+{
+    public IEnumerable<string> GetNames()
+    {
+        return new[] { "a", "s", "d" }; //return new[] { "" }; will be first value in dump
+    }
+    
+    public IEnumerable<Type>   GetTypes()
+    {
+        return new[] { typeof(int), typeof(string), typeof(a) };
+    }
+    
+    public IEnumerable<object> GetValues()
+    {
+        return new object[] { 5, "hello", new a() };
+    }
 }

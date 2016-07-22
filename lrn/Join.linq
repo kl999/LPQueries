@@ -24,3 +24,10 @@ var rez = arr1.Join(
 arr1.Dump();
 arr2.Dump();
 rez.Dump();
+
+(from
+    a1 in arr1
+join
+    a2 in arr2 on Int32.Parse(a1[2].ToString()) equals a2.Length
+select
+    a1 + " " + a2).Dump("SQLLike");

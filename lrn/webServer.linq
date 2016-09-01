@@ -9,7 +9,7 @@
 void Main()
 {
 	// Listen on port 51111, serving files in d:\webroot:
-	var server = new WebServer ("http://localhost:51111/", @"c:\sp");//@"D:\webroot");
+	var server = new WebServer ("http://*:8080/", @"c:\sp\");//@"D:\webroot");
 	try
 	{
 		server.Start();
@@ -63,6 +63,27 @@ QueryString: {context.Request.QueryString.Count}".Dump();
             //url.Scheme, Uri.SchemeDelimiter, url.Authority, url.AbsolutePath, url.Query
             //[1]http[2]://[3]www.example.com[4]/mypage.aspx[5]?myvalue1=hello&myvalue2=goodbye
             Uri url = context.Request.Url;
+            
+            if(context.Request.RawUrl == "/")
+            {
+                List<byte> msgz = new List<byte>();
+                
+                Console.WriteLine(
+					DateTime.Now
+					+ ". Root request"
+					);
+					
+				context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+				
+				msgz.AddRange(
+					Encoding.UTF8.GetBytes("<H1>Hello user!</H1>")
+					);
+                
+                using (Stream s = context.Response.OutputStream)
+				    await s.WriteAsync (msgz.ToArray(), 0, msgz.Count);
+                
+                return;
+            }
             
 			string filename = Path.GetFileName (url.AbsolutePath);
 			string path = Path.Combine (_baseFolder, filename);

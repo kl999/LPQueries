@@ -1,4 +1,4 @@
-echo off
+@echo off
 set filename=function
 
 del bin\%filename%.exe

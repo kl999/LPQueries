@@ -1,5 +1,5 @@
 ﻿Get-ADGroup -Filter 'samAccountName -like "Paynet*"' |
-select SamAccountName, name
+select SamAccountName, Name
 
 $grName = "PaynetSystemAdministratorTerminal"
 

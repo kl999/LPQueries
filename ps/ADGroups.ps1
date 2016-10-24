@@ -1,12 +1,11 @@
 ﻿Get-ADGroup -Filter 'samAccountName -like "Paynet*"' |
+Format-Table SamAccountName, Name
+
+$grName = "PaynetTerminalSystemAdministrator"
+
+$gr = (Get-ADGroup $grName -Properties mail)
+
+"----Group " + $grName + " members:"
+
+Get-ADGroupMember $gr |
 select SamAccountName, Name
-
-$grName = "PaynetSystemAdministratorTerminal"
-
-$gr = (Get-ADGroup $grName)
-
-"
-----Group " + $grName + " members:
-"
-
-Get-ADGroupMember $gr | select SamAccountName, Name

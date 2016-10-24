@@ -4,4 +4,5 @@ $u = Get-ADUser -Filter{Name -like "самарцев*"} `
 $u
 
 Get-ADPrincipalGroupMembership $u.SamAccountName |
-Format-Table SamAccountName, distinguishedName -Wrap
+Get-ADGroup -Properties mail |
+Format-Table SamAccountName, mail, distinguishedName -Wrap

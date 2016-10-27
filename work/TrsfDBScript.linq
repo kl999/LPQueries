@@ -19,9 +19,9 @@
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
-string dbName = "[RudnenskyaEnergoCompany]";
+string dbName = "[***]";
 
-Server srv = new Server(new ServerConnection("tb-impex-db", "ImExDBUser", "123"));
+Server srv = new Server(new ServerConnection("***", "***", "***"));
 
 Database db = srv.Databases[Regex.Match(dbName, @"^\[(.*)]$").Groups[1].Value];
 
@@ -35,7 +35,7 @@ ScriptingOptions sopt = new ScriptingOptions
 StringBuilder scriptStrBldr = new StringBuilder();
 
 scriptStrBldr.AppendLine(@"
-USE [ImexOfflineRegistry]
+USE [****]
 GO
 
 CREATE SCHEMA " + dbName + @"
@@ -92,7 +92,7 @@ foreach (Table t in db.Tables)
     };
     
     scriptStrBldr.AppendLine(
-@"insert into [ImexOfflineRegistry]." + dbName + @".[" + t.Name + @"] (" + getCols(t) + @")
+@"insert into [***]." + dbName + @".[" + t.Name + @"] (" + getCols(t) + @")
 select " + getCols(t) + " from " + dbName + ".[dbo].[" + t.Name + @"]");
 
     scriptStrBldr.AppendLine("GO");

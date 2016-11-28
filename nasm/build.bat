@@ -1,5 +1,5 @@
 @echo off
-set filename=function
+set filename=hwsof
 
 del bin\%filename%.exe
 del bin\%filename%.ilk
@@ -15,7 +15,9 @@ echo ----------------------------------
 
 echo ===LINK:===
 :/EXPORT:writenum
-"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link" /DEBUG /ENTRY:start /EXPORT:writenum /SUBSYSTEM:CONSOLE /nodefaultlib /OUT:bin\%filename%.exe c:\sp\nasm\bin\%filename%.obj kernel32.lib msvcrt.lib
+"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link" /DEBUG /ENTRY:start /SUBSYSTEM:CONSOLE /nodefaultlib /OUT:bin\%filename%.exe c:\sp\nasm\bin\%filename%.obj kernel32.lib msvcrt.lib
+
+:: /EXPORT:writenum
 
 echo __________________________________
 echo ==================================

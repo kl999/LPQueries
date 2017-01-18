@@ -1,4 +1,4 @@
-<Query Kind="Statements">
+﻿<Query Kind="Statements">
   <Namespace>System</Namespace>
   <Namespace>System.Collections.Generic</Namespace>
   <Namespace>System.Data</Namespace>
@@ -17,7 +17,7 @@
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
-var transformedFilePath = @"C:\Users\samartsev\Desktop\";
+var transformedFilePath = @"C:\Users\samartsev\Desktop\evilTestsFolderMuahaha\";
 
 DbConnection connection = null;
 if (false)//866
@@ -29,7 +29,7 @@ else
 {
     string connString = 
     //"Provider=Microsoft.Jet.OLEDB.4.0;Persist Security Info=False;Extended Properties=dbase 5.0;Data Source=" + transformedFilePath;
-    "Provider=vfpoledb;Collating Sequence=RUSSIAN;Data Source=" + transformedFilePath;
+    "Provider=vfpoledb;Collating Sequence=RUSSIAN;Data Source=" + transformedFilePath + "";
     connection = new OleDbConnection(connString);
 }
 

@@ -12,11 +12,13 @@
 
 var doc = new XmlDocument();
 
-doc.LoadXml("<root><sub1 id=''/><sub2><sub2-1 id='2nested'/></sub2></root>");
+doc.LoadXml("<root><sub1 id=''/><sub2><sub2-1 id='2nested'><a/></sub2-1></sub2></root>");
 
 doc.SelectSingleNode(@"root/sub1").Attributes["id"].InnerText = "15";
 
 var nd = doc.SelectSingleNode(@"root/sub1");
+
+doc.SelectSingleNode("root/sub2").SelectSingleNode("sub2-1/a").Dump("sub sub sub");
 
 nd.AppendChild(doc.CreateElement("sub2"));
 

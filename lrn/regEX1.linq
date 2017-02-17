@@ -37,7 +37,7 @@ m.Dump();
 Console.WriteLine(m.Groups[1]);
 Console.WriteLine(m.Groups[2]);
 
-Regex.Replace("catapult the cat", "\\bcat(?=\\w+)", "dog").Dump("replace");
+Regex.Replace("catapult the cat", "\\bcat\\B", "dog").Dump("replace");
 
 string r = @"(?x)^(?=.* ( \d | \p{P} | \p{S} )).{6,}";
 Console.WriteLine (Regex.IsMatch ("asda;sdsad8", r));

@@ -60,14 +60,16 @@ DateTime startTime = DateTime.Now;
 
 server.Connected.Dump();
 
-server.Send(
-	Encoding.UTF8.GetBytes(("CONNECT 66.29.212.110:80 HTTP/1.1\n" + "Proxy-authorization: basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes("samartsev_26224:ZnppoNlms2")) + "\n\n").Dump("Proxy"))
-	);
+//server.Send(
+//	Encoding.UTF8.GetBytes(("CONNECT http://23.22.14.18:80/ HTTP/1.1\n" + "Proxy-authorization: basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes("samartsev_26224:BssdpKpmoor6")) + "\n\n").Dump("Proxy"))
+//	);
 
-//Thread.Sleep(2000);
+//Thread.Sleep(6000);
 
 server.Send(
-	Encoding.UTF8.GetBytes("GET / HTTP/1.1\nHost: w3schools.com/\n\n")
+	Encoding.UTF8.GetBytes("GET /get HTTP/1.1\nHost: httpbin.org/\n"
+    + "Proxy-authorization: NTLM TlR"
+    + "\n\n")
 	);
 	
 //Thread.Sleep(5000);

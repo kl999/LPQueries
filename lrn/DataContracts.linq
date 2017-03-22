@@ -24,6 +24,10 @@ void Main()
   var str = sr.ReadToEnd();
 
   Console.WriteLine("|" + str + "|");
+  
+  s.Seek(0, SeekOrigin.Begin);
+  
+  serializer.ReadObject(s).Dump();
 }
 
 [DataContract(Namespace="myNs")]

@@ -28,6 +28,19 @@ void Main()
   s.Seek(0, SeekOrigin.Begin);
   
   serializer.ReadObject(s).Dump();
+  
+  s = new MemoryStream();
+  
+  var buf = Encoding.UTF8.GetBytes(@"<UserQuery.ExDC xmlns=""myNs"" xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"">
+  <a>8</a>
+  <b>Zllo</b>
+  <c>2017-04-03T16:15:17.8590754+06:00</c>
+</UserQuery.ExDC>");
+  s.Write(buf, 0, buf.Length);
+  
+  s.Seek(0, SeekOrigin.Begin);
+  
+  serializer.ReadObject(s).Dump();
 }
 
 [DataContract(Namespace="myNs")]
@@ -35,4 +48,10 @@ class ExDC
 {
 	[DataMember]
 	public int a = 3;
+    
+    [DataMember]
+	public string b = "Hello";
+    
+    [DataMember]
+	public DateTime c = DateTime.Now;
 }

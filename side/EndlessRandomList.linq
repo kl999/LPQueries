@@ -13,6 +13,8 @@
 
 void Main()
 {
+    new z().Dump();
+
     int steps = 0;
     int requiredValue = 96;
     foreach(var item in randList())
@@ -26,8 +28,14 @@ void Main()
     }
 }
 
-IEnumerable<int> randList()
+static IEnumerable<int> randList()
 {
     var rand = new Random();
     for(;;) yield return rand.Next(101);
+}
+
+class z
+{
+    public int a = 5;
+    public IEnumerable<int> zList = randList();
 }

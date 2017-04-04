@@ -30,3 +30,23 @@ if(Regex.IsMatch(pass, (string)config.Element("pass").Attribute("regex")))
 	config.Element("pass").Add(new XElement("word", pass));
 
 config.Dump ("Updated DOM");
+
+var el = XElement.Parse(@"
+<asd><qwe>a</qwe>d</asd>
+");
+
+el.Dump();
+
+el.Value.Dump("Val");
+
+el.Element("qwe").Value.Dump("qwe");
+
+foreach(var o in el.Nodes())
+{
+    o.GetType().Name.Dump();
+    
+    if(o is XText)
+        o.Dump();
+    if(o is XElement)
+        (o as XElement).Value.Dump();
+}

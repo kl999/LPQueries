@@ -9,5 +9,5 @@ $gr | Format-List
 
 "----Group " + $grName + " members:"
 
-Get-ADGroupMember $gr |
+Get-ADGroupMember $gr <#-Recursive#> |
 select SamAccountName, Name

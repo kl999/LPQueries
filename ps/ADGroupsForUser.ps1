@@ -1,9 +1,9 @@
 ﻿#Get-ADUser samartsev_26224
 [string[]] $srch = @("самарцев*")
-#$srch += "*Платон*"
+#$srch += "*Platon.Samartsev@kaspi.kz*"
 
 foreach($srchs in $srch) {
-$u = Get-ADUser -Filter{Name -like $srchs} `
+$u = Get-ADUser -Filter{Name -like $srchs -or Mail -like $srchs} `
     -Properties Mail, DisplayName, TelephoneNumber #*
 $u
 

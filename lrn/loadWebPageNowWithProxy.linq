@@ -69,6 +69,7 @@ server.Connected.Dump();
 server.Send(
 	Encoding.UTF8.GetBytes("GET /get HTTP/1.1\nHost: httpbin.org/\n"
     + "Proxy-authorization: NTLM TlR"
+    //+ "Proxy-authorization: Basic " + my.toBase64("name:password")
     + "\n\n")
 	);
 	

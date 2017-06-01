@@ -47,6 +47,8 @@ void Main()
 	//my.google("hi");
 	
 	imTst();
+    
+    my.fromBase64(my.toBase64("Hello world of pseudo criptography!").Dump("toBase64")).Dump("fromBase64");
 }
 
 public void imTst()
@@ -189,6 +191,18 @@ public class my
 			return dt;
 		}
 	}
+    
+    public static string toBase64(string plainText)
+    {
+      var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+      return System.Convert.ToBase64String(plainTextBytes);
+    }
+    
+    public static string fromBase64(string base64EncodedData)
+    {
+      var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+      return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+    }
 }
 
 public static class supImg

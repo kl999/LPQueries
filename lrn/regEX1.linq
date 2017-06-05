@@ -64,3 +64,7 @@ Regex.Match("vasd bafd", @"\wa(?=s)").Dump("Positive lookahead");
 Regex.Match("vasd bafd", @"\wa(?!s)").Dump("Negative lookahead");
 Regex.Match("vasd bafd", @"(?<=s)d.*").Dump("Positive lookBehind");
 Regex.Match("vasd bafd", @"(?<!s)d.*").Dump("Negative lookBehind");
+
+new[] { "erc ast", "ast erc", "erc qwerty ast", "zzz ast xxx erc" }
+.Where(i => Regex.IsMatch(i, @"^(?=.*erc)(?=.*ast)"))
+.Dump("AB || BA");

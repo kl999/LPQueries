@@ -1,4 +1,4 @@
 # LPQueries
 LINQPad!
 
-My personal learning scripts for C# and NASM
+My personal learning scripts for C#, NASM and PowerShell

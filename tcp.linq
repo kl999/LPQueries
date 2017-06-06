@@ -21,13 +21,13 @@ void Main()
 {
     bool listen = true;
     
-    Task.Run(() =>
+    var t1 = Task.Run(() =>
     {
         string ipStr = "localhost";
         
         using (TcpClient client = new TcpClient() { })
         {
-            client.Connect(ipStr, 9080);
+            client.Connect(ipStr, 9991);
         
             using (NetworkStream ns = client.GetStream())
             {
@@ -42,9 +42,9 @@ void Main()
         }
     });
     
-    Task.Run(() =>
+    var t2 = Task.Run(() =>
     {
-        TcpListener listener = new TcpListener(IPAddress.Any, 9080);
+        TcpListener listener = new TcpListener(IPAddress.Any, 9991);
         listener.Start();
         Console.WriteLine("---START SERVER---");
     
@@ -55,6 +55,8 @@ void Main()
                 writeMsg(ns, Encoding.UTF8.GetBytes("Hello World!"));
             }
     });
+    
+    Task.WaitAll(new[]{ t1, t2 });
 }
 
 byte[] read(NetworkStream ns, int len)

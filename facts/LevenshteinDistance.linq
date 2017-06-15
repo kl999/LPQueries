@@ -163,7 +163,7 @@ dir.Reverse();
 var w1charr = w1.ToArray();
 var w2charr = w2.ToArray();
 
-string ts = "";
+string ts = "\n";
 for(int i = 1; i < w1.Length; i++)
 	ts += " " + w1[i];
 ts.Dump();

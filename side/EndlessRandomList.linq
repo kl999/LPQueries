@@ -26,6 +26,8 @@ void Main()
             break;
         }
     }
+    
+    randList().OrderBy(i => i).Dump("System.OutOfMemoryException");
 }
 
 static IEnumerable<int> randList()
@@ -36,6 +38,6 @@ static IEnumerable<int> randList()
 
 class z
 {
-    public int a = 5;
+    public int a = randList().First();
     public IEnumerable<int> zList = randList();
 }

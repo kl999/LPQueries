@@ -67,9 +67,9 @@ server.Connected.Dump();
 //Thread.Sleep(6000);
 
 server.Send(
-	Encoding.UTF8.GetBytes("GET /get HTTP/1.1\nHost: httpbin.org/\n"
-    + "Proxy-authorization: NTLM TlR"
-    //+ "Proxy-authorization: Basic " + my.toBase64("name:password")
+	Encoding.UTF8.GetBytes("GET /get HTTP/1.1\nHost: httpbin.org\n"
+    //+ "Proxy-authorization: NTLM TlR"
+    + "Authorization: Basic " + my.toBase64(@"User:Password")
     + "\n\n")
 	);
 	

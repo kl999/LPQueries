@@ -22,8 +22,6 @@ void Main()
     var o2 = SimpleXMLConverter.fromXml(xml, new[] { typeof(A), typeof(B) });
 
     Console.WriteLine((o2 as A).a);
-
-    Console.ReadLine();
 }
 
 public static class SimpleXMLConverter
@@ -57,7 +55,7 @@ public static class SimpleXMLConverter
 
         if (type.GetConstructor(new Type[0]) == null) throw new Exception($"No parameterless constructor in type {type.FullName}!");
 
-        rez = new XElement(type.FullName);
+        rez = new XElement(type.FullName.Replace("+", "."));
 
         if (propName != null) rez.SetAttributeValue("propName", propName);
 
@@ -84,7 +82,7 @@ public static class SimpleXMLConverter
 
         foreach (var item in knownTypes)
         {
-            if (item.FullName == xml.Name.ToString())
+            if (item.FullName.Replace("+", ".") == xml.Name.ToString().Replace("+", "."))
                 type = item;
         }
 

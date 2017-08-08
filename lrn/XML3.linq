@@ -50,3 +50,13 @@ foreach(var o in el.Nodes())
     if(o is XElement)
         (o as XElement).Value.Dump();
 }
+
+XNamespace ns = "http://www.my.ns/";
+XNamespace emptyNs = "";
+
+el = new XElement(ns + "Hello");
+var wel = new XElement(emptyNs + "world");
+el.Add(wel);
+wel.SetAttributeValue(ns + "att", "Iamns");
+
+el.Dump();

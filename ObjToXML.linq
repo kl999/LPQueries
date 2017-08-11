@@ -13,15 +13,15 @@
 
 void Main()
 {
-    var o = new A { a = 9 };
+    var o = new MyZ.A { a = 9 };
 
     var xml = SimpleXMLConverter.toXlm(o);
 
     Console.WriteLine(xml);
 
-    var o2 = SimpleXMLConverter.fromXml(xml, new[] { typeof(A), typeof(B) });
+    var o2 = SimpleXMLConverter.fromXml(xml, new[] { typeof(MyZ.A), typeof(MyZ.B) });
 
-    Console.WriteLine((o2 as A).a);
+    Console.WriteLine((o2 as MyZ.A).a);
 }
 
 public static class SimpleXMLConverter
@@ -53,20 +53,37 @@ public static class SimpleXMLConverter
 
         Type type = obj.GetType();
 
-        if (type.GetConstructor(new Type[0]) == null) throw new Exception($"No parameterless constructor in type {type.FullName}!");
-
-        rez = new XElement(type.FullName.Replace("+", "."));
-
-        if (propName != null) rez.SetAttributeValue("propName", propName);
-
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-        foreach (var field in fields)
+        if (simpleTypesLs.Contains(type))
         {
-            if (simpleTypesLs.Contains(field.FieldType))
-                rez.Add(new XElement(field.Name, field.GetValue(obj).ToString()));
-            else
-                rez.Add(toXlm(field.GetValue(obj), field.Name));
+            rez = new XElement(type.FullName, obj.ToString());
+        }
+        else if (type.IsArray)
+        {
+            rez = new XElement("Array");
+            rez.SetAttributeValue("type", type.GetElementType().FullName);
+
+            foreach (var item in (obj as dynamic))
+            {
+                rez.Add(toXlm(item));
+            }
+        }
+        else
+        {
+            if (type.GetConstructor(new Type[0]) == null) throw new Exception($"No parameterless constructor in type {type.FullName}!");
+
+            rez = new XElement(type.FullName);
+
+            if (propName != null) rez.SetAttributeValue("propName", propName);
+
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+            foreach (var field in fields)
+            {
+                if (simpleTypesLs.Contains(field.FieldType))
+                    rez.Add(new XElement(field.Name, field.GetValue(obj).ToString()));
+                else
+                    rez.Add(toXlm(field.GetValue(obj), field.Name));
+            }
         }
 
         return rez;
@@ -80,35 +97,68 @@ public static class SimpleXMLConverter
 
         Type type = null;
 
-        foreach (var item in knownTypes)
+        foreach (var item in simpleTypesLs)
         {
-            if (item.FullName.Replace("+", ".") == xml.Name.ToString().Replace("+", "."))
-                type = item;
+            if (item.FullName == xml.Name.ToString())
+                return getSimpleValue(xml.Value, item.FullName);
         }
 
-        if (type == null) throw new Exception("Type is unknown!");
-
-        var ctor = type.GetConstructor(new Type[0]);
-
-        rez = ctor.Invoke(new object[0]);
-
-        foreach (var el in xml.Elements())
+        if (xml.Name.ToString() == "Array")
         {
-            object val = null;
+            var typeName = xml.Attribute("type").Value;
+            var arrMbrs = xml.Elements().ToArray();
 
-            string propName = el.Attribute("propName")?.Value;
+            foreach (var item in simpleTypesLs.Concat(knownTypes ?? new Type[0]))
+            {
+                if (item.FullName == typeName)
+                    type = item;
+            }
 
-            var fld = type.GetField(propName ?? el.Name.ToString(), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (type == null) throw new Exception("Array type is unknown!");
 
-            if (propName != null)
-                val = fromXml(el, knownTypes);
-            else
-                val = getSimpleValue(el.Value, fld.FieldType.FullName);
+            var ctor = type.MakeArrayType().GetConstructor(new Type[0]);
 
-            fld.SetValue(rez, val);
+            rez = Activator.CreateInstance(type.MakeArrayType(), new object[] { arrMbrs.Length });
+
+            for (int i = 0; i < arrMbrs.Length; i++)
+            {
+                  (rez as Array).SetValue(fromXml(arrMbrs[i], knownTypes), i);
+            }
+
+            return rez;
         }
+        else
+        {
+            foreach (var item in knownTypes)
+            {
+                if (item.FullName == xml.Name.ToString())
+                    type = item;
+            }
 
-        return rez;
+            if (type == null) throw new Exception("Type is unknown!");
+
+            var ctor = type.GetConstructor(new Type[0]);
+
+            rez = ctor.Invoke(new object[0]);
+
+            foreach (var el in xml.Elements())
+            {
+                object val = null;
+
+                string propName = el.Attribute("propName")?.Value;
+
+                var fld = type.GetField(propName ?? el.Name.ToString(), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (propName != null)
+                    val = fromXml(el, knownTypes);
+                else
+                    val = getSimpleValue(el.Value, fld.FieldType.FullName);
+
+                fld.SetValue(rez, val);
+            }
+
+            return rez;
+        }
     }
 
     private static object getSimpleValue(string value, string typeName)
@@ -137,30 +187,35 @@ public static class SimpleXMLConverter
                 throw new Exception($"Unknown type name ({typeName})!");
         }
     }
-}
+}}
 
-class A
+namespace MyZ
 {
-    public int a = 5;
-
-#pragma warning disable CS0414
-    private int b = 7;
-#pragma warning restore CS0414
-
-    public string str = "Hi!";
-
-    public bool flag = true;
-
-    public DateTime dt = DateTime.Now;
-
-    public TimeSpan ts = new TimeSpan(0, 5, 30);
-
-    public B inner = new B();
-    public B isnull = null;
+    class A
+    {
+        public int a = 5;
+    
+    #pragma warning disable CS0414
+        private int b = 7;
+    #pragma warning restore CS0414
+    
+        public string str = "Hi!";
+    
+        public bool flag = true;
+    
+        public DateTime dt = DateTime.Now;
+    
+        public TimeSpan ts = new TimeSpan(0, 5, 30);
+    
+        public B inner = new B();
+        public B isnull = null;
+    }
+    
+    class B
+    {
+        public int fst = 3;
+        public long scnd = 18;
+    }
 }
 
-class B
-{
-    public int fst = 3;
-    public long scnd = 18;
-}
+class EoF{

@@ -1,8 +1,8 @@
 <Query Kind="Statements">
-  <GACReference>Microsoft.SqlServer.ConnectionInfo, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91</GACReference>
-  <GACReference>Microsoft.SqlServer.Management.Sdk.Sfc, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91</GACReference>
-  <GACReference>Microsoft.SqlServer.Smo, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91</GACReference>
-  <GACReference>Microsoft.SqlServer.SqlEnum, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91</GACReference>
+  <Reference>&lt;ProgramFilesX86&gt;\Microsoft SQL Server\130\SDK\Assemblies\Microsoft.SqlServer.ConnectionInfo.dll</Reference>
+  <Reference>&lt;ProgramFilesX64&gt;\Microsoft SQL Server\130\SDK\Assemblies\Microsoft.SqlServer.Management.Sdk.Sfc.dll</Reference>
+  <Reference>&lt;ProgramFilesX64&gt;\Microsoft SQL Server\130\SDK\Assemblies\Microsoft.SqlServer.Smo.dll</Reference>
+  <Reference>&lt;ProgramFilesX64&gt;\Microsoft SQL Server\130\SDK\Assemblies\Microsoft.SqlServer.SqlEnum.dll</Reference>
   <Namespace>Microsoft.SqlServer.Management.Common</Namespace>
   <Namespace>Microsoft.SqlServer.Management.Smo</Namespace>
   <Namespace>Microsoft.SqlServer.Management.Smo.Agent</Namespace>

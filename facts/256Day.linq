@@ -11,11 +11,11 @@
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
-var ts = DateTime.Now - DateTime.Parse("01.01.17");
+var ts = DateTime.Now - new DateTime(DateTime.Now.Year, 1, 1);
 
 ts.Dump();
 
 if(ts.Days == 255)
 {
-    "256!".Dump();
+    "256!".Dump();//13.09 or 12.09
 }

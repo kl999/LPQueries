@@ -98,3 +98,14 @@ foreach (var atr in atrs)
 }
 
 temps.Dump("all 1s");
+
+el = XElement.Parse(@"<root xmlns=""zns"">
+  <sub a=""2"">two<sub>one</sub></sub>
+  <sub a=""1"">one</sub>
+  <sub>1</sub>
+</root>");
+
+var nsm = new XmlNamespaceManager(new NameTable());
+nsm.AddNamespace("z", "zns");
+
+el.XPathSelectElement("z:sub[@a!=\"1\"]", nsm).Dump("Namespaces");

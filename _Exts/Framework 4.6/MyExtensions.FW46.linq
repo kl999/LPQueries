@@ -4,10 +4,13 @@
   <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing.Imaging</Namespace>
   <Namespace>System.IO</Namespace>
+  <Namespace>System.IO.MemoryMappedFiles</Namespace>
   <Namespace>System.Reflection.Emit</Namespace>
   <Namespace>System.Threading</Namespace>
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
+
+CrossProcCom cpc = new CrossProcCom("testFile");
 
 void Main()
 {
@@ -49,6 +52,12 @@ void Main()
 	imTst();
     
     my.fromBase64(my.toBase64("Hello world of pseudo criptography!").Dump("toBase64")).Dump("fromBase64");
+    
+    cpc.write("CroosProcess!");
+    
+    new[]{cpc}.OnDemand().Dump();
+    
+    cpc.read().Dump();
 }
 
 public void imTst()
@@ -426,6 +435,60 @@ public static class supImg
 		}
 		private int _a;
 	}
+}
+
+/// <summary>
+/// Cross Process Comunication
+/// </summary>
+public class CrossProcCom //Non the less
+{
+    public string fileName;
+
+    MemoryMappedFile mmfile = null;
+
+    MemoryMappedViewStream strm = null;
+    
+    Mutex mtx = null;
+    
+    public CrossProcCom(string fileName)
+    {
+        this.fileName = fileName;
+        
+        if(!Regex.IsMatch(fileName, @"^\w{1,200}$")) throw new Exception("fileName must be 1 to 100 letters. One word!");
+        
+        mmfile = MemoryMappedFile.CreateOrOpen(fileName, 1024L * 1024L * 100L, MemoryMappedFileAccess.ReadWrite, MemoryMappedFileOptions.None, System.IO.HandleInheritability.None);
+
+        strm = mmfile.CreateViewStream(0, 1024L * 1024L * 100L, MemoryMappedFileAccess.ReadWrite);
+        
+        mtx = new Mutex(false, fileName + "Mutex");
+    }
+    
+    public void write(string str)
+    {
+        var buf = new byte[1024L * 1024L * 100L];
+        
+        var t = Encoding.UTF8.GetBytes(str);
+        t.CopyTo(buf, 0);
+        
+        mtx.WaitOne();
+        
+        strm.Write(buf, 0, buf.Length);
+        
+        mtx.ReleaseMutex();
+    }
+    
+    public string read()
+    {
+        var buf = new byte[1024L * 1024L * 100L];
+    
+        mtx.WaitOne();
+        
+        strm.Read(buf, 0, buf.Length);
+        
+        mtx.ReleaseMutex();
+        
+        return Encoding.UTF8.GetString(buf.Where(i => i != 0).ToArray());
+    }
 }
 
 public static class SimpleLoad

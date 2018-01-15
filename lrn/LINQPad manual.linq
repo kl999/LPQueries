@@ -132,3 +132,6 @@ for (int index = 0; index <= 100; index++)
 
 To start vs debugger add:
 Debugger.Launch()
+
+А если хочешь дампануть один объект
+new Lazy<int>(() => 3).Dump();

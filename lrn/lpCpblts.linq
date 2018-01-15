@@ -41,6 +41,10 @@ void Main()
     Util.DisplayWebPage("https://www.google.kz/?gfe_rd=cr&ei=zvCEVrq_F8u9wAO3tJHwAQ");
     
     new a().Dump("Costum");
+    
+    new Lazy<int>(() => 3).Dump();
+    
+    new B{}.Dump();
 }
 
 void clrScr()
@@ -75,5 +79,13 @@ class a : ICustomMemberProvider
     public IEnumerable<object> GetValues()
     {
         return new object[] { 5, "hello", new a() };
+    }
+}
+
+class B
+{
+    private object ToDump ()
+    {
+       return Util.WithStyle ("False", "color:red");
     }
 }

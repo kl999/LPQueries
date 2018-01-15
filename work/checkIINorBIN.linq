@@ -18,6 +18,8 @@ void Main()
     try
     {
         checkBIN(str, 1);
+        
+        true.Dump("checkBIN");
     }
     catch(Exception ex)
     {
@@ -104,9 +106,9 @@ void Main()
             for (int i = 0; i < 12; i++)
                 digit[i] = Convert.ToByte(IIN.Substring(i, 1));
 
-            int year = digit[0] * 10 + digit[1];
-            int month = digit[2] * 10 + digit[3];
-            int day = digit[4] * 10 + digit[5];
+            int year = digit[0]*10 + digit[1];
+            int month = digit[2]*10 + digit[3];
+            int day = digit[4]*10 + digit[5];
             byte century = digit[6];
             byte control = digit[11];
 
@@ -139,28 +141,31 @@ void Main()
             }
 
             if (century == 0)
+            {
                 isResident = false;
-            else
-                try
-                {
-                    new DateTime(year, month, day);
-                }
-                catch
-                {
-                    debug = error + "Дата рождения отсутствует в календаре";
-                    return false;
-                }
+                year += 2000; //Все нерезиденты будут 2000-го
+            }
+
+            try
+            {
+                new DateTime(year, month, day);
+            }
+            catch
+            {
+                debug = error + "Дата рождения отсутствует в календаре";
+                return false;
+            }
 
             // Расчет контрольного разряда
             var weight = new byte[2][];
-            weight[0] = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-            weight[1] = new byte[] { 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 2 };
+            weight[0] = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+            weight[1] = new byte[] {3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 2};
 
             int[] cv = new int[2];
             for (int k = 0; k < 2; k++)
             {
                 for (int i = 0; i < 11; i++)
-                    cv[k] += digit[i] * weight[k][i];
+                    cv[k] += digit[i]*weight[k][i];
                 cv[k] %= 11;
             }
 

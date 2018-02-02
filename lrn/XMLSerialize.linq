@@ -76,7 +76,7 @@ public class zxc : asd
 [Serializable]
 public class qwe : asd
 {
-    public string str2 = "I see U 2!";
+    public string str = "I see U 2!";
 }
 
 //[Serializable]
@@ -115,4 +115,4 @@ public class e : I1
 public class Ie
 {
     public I1 a = new e() { b = 5 };
-    }
+}

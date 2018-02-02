@@ -62,12 +62,13 @@ void Main()
     
     var lpqName = Regex.Match(jstr, @"query_\w+");
     
-    jstr = @"{
-  ""c"": ""Hello"",
-  ""a"": {
-    ""$type"": ""UserQuery+B, " + lpqName + @""",
-    ""c"": ""World"",
-    ""d"": false
+    jstr = @"
+{
+  'c': 'Rty',
+  'a': {
+    '$type': 'UserQuery+B, " + lpqName + @"',
+    'c': 'Qwe',
+    'd': false
   }
 }";
     
@@ -94,6 +95,6 @@ interface IA
 
 class B : IA
 {
-    public string c {get;set;} = "World";
+    public string c { get;set; } = "World";
     public bool d = false;
 }

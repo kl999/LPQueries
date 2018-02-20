@@ -48,6 +48,15 @@ void Main()
     Console.WriteLine("Ie:\n" + XElement.Parse(xml));
     using (Stream sr = new MemoryStream(xml.Select(i => (byte)i).ToArray()))
         Console.WriteLine((xsSubmit3.ReadObject(sr) as Ie));
+    
+    xml = @"<UserQuery.Ie xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns=""http://schemas.datacontract.org/2004/07/"">
+  <a i:type=""UserQuery.e"">
+    <b>5</b>
+    <a>5</a>
+  </a>
+</UserQuery.Ie>";
+    using (Stream sr = new MemoryStream(xml.Select(i => (byte)i).ToArray()))
+        Console.WriteLine((xsSubmit3.ReadObject(sr) as Ie));
 }
 
 [Serializable]

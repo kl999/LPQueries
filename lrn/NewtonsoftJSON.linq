@@ -43,7 +43,7 @@ void Main()
         jstr.Dump("rez");
     }*/
     
-    jstr = JsonConvert.SerializeObject(new A(){ a = new B() }, new Newtonsoft.Json.JsonSerializerSettings 
+    jstr = JsonConvert.SerializeObject(new A(){ a = new B(), d = TstEnum.Tmth }, new Newtonsoft.Json.JsonSerializerSettings 
     { 
         TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
         NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
@@ -60,17 +60,19 @@ void Main()
     
     a.Dump();
     
-    var lpqName = Regex.Match(jstr, @"query_\w+");
-    
     jstr = @"
 {
   'c': 'Rty',
   'a': {
-    '$type': 'UserQuery+B, " + lpqName + @"',
+    '$type': 'UserQuery+B, " + Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase) + @"',
     'c': 'Qwe',
-    'd': false
-  }
+    'd': false,
+    'e': 'Unknown'
+  },
+  'd': 1
 }";
+
+jstr.Dump();
     
     a = Newtonsoft.Json.JsonConvert.DeserializeObject<A>(jstr, new Newtonsoft.Json.JsonSerializerSettings 
     { 
@@ -86,6 +88,17 @@ class A : IA
     public IA a;
     private int b = 7;
     public string c {get;set;} = "Hello";
+    
+    public TstEnum d = TstEnum.Hello | TstEnum.World;
+}
+
+enum TstEnum
+{
+    Hello = 1,
+    World = 2,
+    
+    Programm = Hello | World,
+    Tmth = 352719
 }
 
 interface IA

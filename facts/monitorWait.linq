@@ -22,5 +22,24 @@ void Main()
     Task.Run(() => { Thread.Sleep(1000); lock(locker){ Monitor.Pulse(locker); } });
     
     Task.Run(() => { lock(locker){ Monitor.Wait(locker); "End".Dump(); } }).Wait();
+    
+    for(int i = 0; i < 20; i++)
+    {
+        new Thread(wait).Start();
+        
+        Thread.Sleep(2500);
+    }
 }
 
+void wait()
+{
+    if(Monitor.TryEnter(locker, 0))
+    {
+        "Run".Dump();
+        Thread.Sleep(5000);
+        Monitor.Exit(locker);
+        "end".Dump();
+    }
+    else
+        "denied".Dump();
+}

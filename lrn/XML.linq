@@ -48,3 +48,17 @@ el
 		)
 	)
 .Dump();
+
+el = XElement.Parse(@"
+<nums>
+  <num>1</num>
+  <num>5</num>
+  <num>11</num>
+</nums>
+");
+
+var sum = 0;
+foreach(var numEl in el.Elements("num"))
+    sum += (int)numEl;
+
+sum.Dump("Explicit conversion");

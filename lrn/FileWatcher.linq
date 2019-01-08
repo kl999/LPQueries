@@ -18,25 +18,34 @@ void Main()
 public static void Run()
 {
 	// Create a new FileSystemWatcher and set its properties.
-	FileSystemWatcher watcher = new FileSystemWatcher();
-    watcher.Path = @"c:\";//\sp\";
-	
-	watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-    	| NotifyFilters.FileName | NotifyFilters.DirectoryName;
-//	NotifyFilters.LastAccess | NotifyFilters.LastWrite
-//    | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-	
-	watcher.Filter = "*.tmp";
-	
-	watcher.Changed += new FileSystemEventHandler(OnChanged);
-	watcher.Created += new FileSystemEventHandler(OnCreated);
-	watcher.Deleted += new FileSystemEventHandler(OnDeleted);
-	watcher.Renamed += new RenamedEventHandler(OnRenamed);
-	
-	// Begin watching.
-    watcher.EnableRaisingEvents = true;
-	
-	watcher.IncludeSubdirectories = true;
+	using(FileSystemWatcher watcher = new FileSystemWatcher())
+    {
+        watcher.Path = @"C:\";//\sp\";
+    	
+    	watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
+        	| NotifyFilters.FileName | NotifyFilters.DirectoryName;
+    //	NotifyFilters.LastAccess | NotifyFilters.LastWrite
+    //    | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+    	
+    	//watcher.Filter = "*.tmp";
+    	
+    	watcher.Changed += new FileSystemEventHandler(OnChanged);
+    	watcher.Created += new FileSystemEventHandler(OnCreated);
+    	watcher.Deleted += new FileSystemEventHandler(OnDeleted);
+    	watcher.Renamed += new RenamedEventHandler(OnRenamed);
+    	
+    	// Begin watching.
+        watcher.EnableRaisingEvents = true;
+    	
+    	watcher.IncludeSubdirectories = true;
+        
+        Console.ReadLine();
+        
+        watcher.Changed -= new FileSystemEventHandler(OnChanged);
+    	watcher.Created -= new FileSystemEventHandler(OnCreated);
+    	watcher.Deleted -= new FileSystemEventHandler(OnDeleted);
+    	watcher.Renamed -= new RenamedEventHandler(OnRenamed);
+    }
 }
 
 private static void OnChanged(object source, FileSystemEventArgs e)

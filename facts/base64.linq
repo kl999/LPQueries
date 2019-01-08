@@ -16,6 +16,14 @@ void Main()
 	var rez = Base64Decode(str).Dump("Rez");
 	
 	Base64Encode("Hello! how u managed to understand such a complex cipher?").Dump();
+    
+    /*
+    var raw = File.ReadAllText(@"in");
+
+    var rezBytes = System.Convert.FromBase64String(raw);
+    
+    File.WriteAllBytes(@"out", rezBytes);
+    */
 }
 
 public static string Base64Encode(string plainText)

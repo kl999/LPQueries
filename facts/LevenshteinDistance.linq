@@ -9,13 +9,13 @@
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
-string w1 = "s";
-string w2 = "d";
+string w1 = "алсеко";
+string w2 = "насекомые";
 
-string[] inp = Console.ReadLine().Split(' ');
+/*string[] inp = Console.ReadLine().Split(' ');
 
 w1 = inp[0];
-w2 = inp[1];
+w2 = inp[1];*/
 
 w1 = " " + w1;
 w2 = " " + w2;

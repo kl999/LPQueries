@@ -103,6 +103,8 @@ public class my
 {
     public static System.Globalization.CultureInfo invC = System.Globalization.CultureInfo.InvariantCulture;
     public static Encoding enc1251 = Encoding.GetEncoding(1251);
+    public static System.Globalization.CultureInfo en = new System.Globalization.CultureInfo("en-US");
+    public static System.Globalization.CultureInfo ru = new System.Globalization.CultureInfo("ru-RU");
     
 	public static void test()
 	{

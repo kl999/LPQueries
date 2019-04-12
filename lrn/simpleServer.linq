@@ -20,7 +20,7 @@ async static void ListenAsync()
 {
 	HttpListener listener = new HttpListener();
 	
-	listener.Prefixes.Add ("http://localhost:51111/MyApp/"); // Listen on
+	listener.Prefixes.Add ("http://+:51111/MyApp/"); // Listen on
 	
 	listener.Start(); // port 51111.
 	

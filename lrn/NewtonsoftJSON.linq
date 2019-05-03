@@ -1,5 +1,5 @@
 <Query Kind="Program">
-  <Reference>C:\sh\git\paynet\Source\Connectors\DirectConnections\RPS.PaynetKSP.Providers.Direct.RudnyERCInvoice\bin\Release\Newtonsoft.Json.dll</Reference>
+  <NuGetReference>Rock.Core.Newtonsoft</NuGetReference>
   <Namespace>Newtonsoft.Json</Namespace>
   <Namespace>Newtonsoft.Json.Bson</Namespace>
   <Namespace>Newtonsoft.Json.Converters</Namespace>
@@ -67,7 +67,11 @@ void Main()
     '$type': 'UserQuery+B, " + Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase) + @"',
     'c': 'Qwe',
     'd': false,
-    'e': 'Unknown'
+    'e': 'Unknown',
+    'dic': {
+        'some': 5,
+        'word': 10
+    }
   },
   'd': 1
 }";
@@ -110,4 +114,9 @@ class B : IA
 {
     public string c { get;set; } = "World";
     public bool d = false;
+    public Dictionary<string, int> dic = new Dictionary<string, int>
+    {
+        ["Hi"] = 1,
+        ["World"] = 17,
+    };
 }

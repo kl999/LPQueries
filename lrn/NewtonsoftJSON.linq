@@ -85,6 +85,13 @@ jstr.Dump();
     });
     
     a.Dump();
+    
+    var c = new C{ a = 2, b = new object[]{ new D{ z = 5, x = "z" }, new D{ z = 5, x = "z" }, new{ q = 3 } } };
+    var json = JsonConvert.SerializeObject(c).Dump();
+    
+    var o = JsonConvert.DeserializeObject<C>(json).Dump();
+    
+    o.b.Select(i => (i as JObject).ToObject<D>()).Dump();
 }
 
 class A : IA
@@ -119,4 +126,16 @@ class B : IA
         ["Hi"] = 1,
         ["World"] = 17,
     };
+}
+
+class C
+{
+    public int a;
+    public object[] b;
+}
+
+class D
+{
+    public int z;
+    public string x;
 }

@@ -292,6 +292,21 @@ public static class supImg
 		
 		bmp.fromBytes(rgbBuf);
 	}
+    
+    public static void fromGrayBytes(this Bitmap bmp, IEnumerable<byte> buf)
+	{
+		var rgbBuf = new List<byte>();
+		
+		foreach(var bt in buf)
+		{
+            rgbBuf.Add(bt);
+            rgbBuf.Add(bt);
+            rgbBuf.Add(bt);
+            rgbBuf.Add(255);
+		}
+		
+		bmp.fromBytes(rgbBuf.ToArray());
+	}
 	
 	public static imgRgbaCl getRgba(byte[] buf, int height, int width)
 	{

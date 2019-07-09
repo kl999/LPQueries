@@ -11,3 +11,4 @@ $gr | Format-List
 
 Get-ADGroupMember $gr <#-Recursive#> |
 select SamAccountName, Name
+Get-ADPrincipalGroupMembership $gr | select SamAccountName, Name

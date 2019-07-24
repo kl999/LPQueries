@@ -15,24 +15,31 @@ void Main()
 		
 		for(int i = 0; i < 3; i++)
 		{
-			Thread.Sleep(1000);
+			//Thread.Sleep(1000);
 			
 			a.zomM();
 		}
 	});
+    
+    tsk.Start();
 	
 	tsk.Dump();// = "Tsk";
-	
-	for(int i = 0; i > 10000; i++)
+    
+    tsk.Wait();
+	str.Dump();
+    
+	/*for(int i = 0; i > 1000; i++)
 	{
 		str.Dump();
 		
 		Thread.Sleep(1);
-	}
+	}*/
 }
 
 void evMtd(object sender, EventArgs e)
 {
+    Thread.Sleep(1000);
+    
 	str += " hi";
 }
 

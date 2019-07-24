@@ -1,0 +1,14 @@
+C:\sh\git\Projects\TCPCore\Server\bin\BPC\Debug\netcoreapp2.2\Server.deps.json
+C:\sh\git\Projects\TCPCore\Server\bin\BPC\Debug\netcoreapp2.2\Server.runtimeconfig.json
+C:\sh\git\Projects\TCPCore\Server\bin\BPC\Debug\netcoreapp2.2\Server.runtimeconfig.dev.json
+C:\sh\git\Projects\TCPCore\Server\bin\BPC\Debug\netcoreapp2.2\Server.dll
+C:\sh\git\Projects\TCPCore\Server\bin\BPC\Debug\netcoreapp2.2\Server.pdb
+C:\sh\git\Projects\TCPCore\Server\bin\BPC\Debug\netcoreapp2.2\TCPLib.dll
+C:\sh\git\Projects\TCPCore\Server\bin\BPC\Debug\netcoreapp2.2\TCPLib.pdb
+C:\sh\git\Projects\TCPCore\Server\obj\BPC\Debug\netcoreapp2.2\Server.csprojAssemblyReference.cache
+C:\sh\git\Projects\TCPCore\Server\obj\BPC\Debug\netcoreapp2.2\Server.csproj.CoreCompileInputs.cache
+C:\sh\git\Projects\TCPCore\Server\obj\BPC\Debug\netcoreapp2.2\Server.AssemblyInfoInputs.cache
+C:\sh\git\Projects\TCPCore\Server\obj\BPC\Debug\netcoreapp2.2\Server.AssemblyInfo.cs
+C:\sh\git\Projects\TCPCore\Server\obj\BPC\Debug\netcoreapp2.2\Server.csproj.CopyComplete
+C:\sh\git\Projects\TCPCore\Server\obj\BPC\Debug\netcoreapp2.2\Server.dll
+C:\sh\git\Projects\TCPCore\Server\obj\BPC\Debug\netcoreapp2.2\Server.pdb

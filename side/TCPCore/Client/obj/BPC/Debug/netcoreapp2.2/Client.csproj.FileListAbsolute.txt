@@ -1,0 +1,14 @@
+C:\sh\git\Projects\TCPCore\Client\obj\BPC\Debug\netcoreapp2.2\Client.csprojAssemblyReference.cache
+C:\sh\git\Projects\TCPCore\Client\obj\BPC\Debug\netcoreapp2.2\Client.csproj.CoreCompileInputs.cache
+C:\sh\git\Projects\TCPCore\Client\obj\BPC\Debug\netcoreapp2.2\Client.AssemblyInfoInputs.cache
+C:\sh\git\Projects\TCPCore\Client\obj\BPC\Debug\netcoreapp2.2\Client.AssemblyInfo.cs
+C:\sh\git\Projects\TCPCore\Client\bin\BPC\Debug\netcoreapp2.2\Client.deps.json
+C:\sh\git\Projects\TCPCore\Client\bin\BPC\Debug\netcoreapp2.2\Client.runtimeconfig.json
+C:\sh\git\Projects\TCPCore\Client\bin\BPC\Debug\netcoreapp2.2\Client.runtimeconfig.dev.json
+C:\sh\git\Projects\TCPCore\Client\bin\BPC\Debug\netcoreapp2.2\Client.dll
+C:\sh\git\Projects\TCPCore\Client\bin\BPC\Debug\netcoreapp2.2\Client.pdb
+C:\sh\git\Projects\TCPCore\Client\bin\BPC\Debug\netcoreapp2.2\TCPLib.dll
+C:\sh\git\Projects\TCPCore\Client\bin\BPC\Debug\netcoreapp2.2\TCPLib.pdb
+C:\sh\git\Projects\TCPCore\Client\obj\BPC\Debug\netcoreapp2.2\Client.csproj.CopyComplete
+C:\sh\git\Projects\TCPCore\Client\obj\BPC\Debug\netcoreapp2.2\Client.dll
+C:\sh\git\Projects\TCPCore\Client\obj\BPC\Debug\netcoreapp2.2\Client.pdb

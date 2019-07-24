@@ -1,0 +1,9 @@
+C:\sh\git\Projects\TCPCore\TCPLib\bin\BPC\Debug\netstandard2.0\TCPLib.deps.json
+C:\sh\git\Projects\TCPCore\TCPLib\bin\BPC\Debug\netstandard2.0\TCPLib.dll
+C:\sh\git\Projects\TCPCore\TCPLib\bin\BPC\Debug\netstandard2.0\TCPLib.pdb
+C:\sh\git\Projects\TCPCore\TCPLib\obj\BPC\Debug\netstandard2.0\TCPLib.csprojAssemblyReference.cache
+C:\sh\git\Projects\TCPCore\TCPLib\obj\BPC\Debug\netstandard2.0\TCPLib.csproj.CoreCompileInputs.cache
+C:\sh\git\Projects\TCPCore\TCPLib\obj\BPC\Debug\netstandard2.0\TCPLib.AssemblyInfoInputs.cache
+C:\sh\git\Projects\TCPCore\TCPLib\obj\BPC\Debug\netstandard2.0\TCPLib.AssemblyInfo.cs
+C:\sh\git\Projects\TCPCore\TCPLib\obj\BPC\Debug\netstandard2.0\TCPLib.dll
+C:\sh\git\Projects\TCPCore\TCPLib\obj\BPC\Debug\netstandard2.0\TCPLib.pdb

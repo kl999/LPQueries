@@ -8,6 +8,7 @@
   <Namespace>System.IO</Namespace>
   <Namespace>System.Net</Namespace>
   <Namespace>System.Net.Security</Namespace>
+  <Namespace>System.Net.Sockets</Namespace>
   <Namespace>System.Reflection.Emit</Namespace>
   <Namespace>System.Runtime.InteropServices</Namespace>
   <Namespace>System.Security.Cryptography.X509Certificates</Namespace>

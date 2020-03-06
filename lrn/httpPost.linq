@@ -9,7 +9,8 @@
 
 var client = new HttpClient (new HttpClientHandler { UseProxy = false });
 var request = new HttpRequestMessage (
-HttpMethod.Post, "http://www.c5.zedo.com");
+    HttpMethod.Post,
+    "http://www.c5.zedo.com");
 request.Content = new StringContent ("Hello!");
 HttpResponseMessage response = await client.SendAsync (request);
 response.EnsureSuccessStatusCode();

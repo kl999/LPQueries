@@ -1,21 +1,18 @@
 <Query Kind="Statements">
-  <Namespace>System.Data</Namespace>
   <Namespace>System.Data.SqlClient</Namespace>
-  <Namespace>System.Diagnostics</Namespace>
-  <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing.Imaging</Namespace>
-  <Namespace>System.IO</Namespace>
   <Namespace>System.Reflection.Emit</Namespace>
-  <Namespace>System.Threading</Namespace>
   <Namespace>System.Threading.Tasks</Namespace>
+  <IncludeLinqToSql>true</IncludeLinqToSql>
 </Query>
 
 string connectionString =
-@"Data Source=SQL1pc;Initial Catalog=testDb;user=Administrator;password=admin";
+@"Data Source=(localdb)\MyDB;Integrated Security=SSPI;app=LINQPad;Initial Catalog=test";
 
 string queryString =
-@"SELECT * FROM wordTab";
+@"SELECT * FROM Tab1
+select * from Test2";
 
 int paramValue = 5;
 
@@ -35,7 +32,7 @@ using (SqlConnection connection = new SqlConnection(connectionString))
             queryString, connection);
         adapter.Fill(dataset);
 		
-		dataset.DataTable[0].Dump();
+		dataset.Dump();
 	}
 	catch (Exception ex)
 	{

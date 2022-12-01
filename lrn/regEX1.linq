@@ -1,5 +1,4 @@
 <Query Kind="Statements">
-  <Namespace>System.Threading</Namespace>
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
@@ -68,3 +67,5 @@ Regex.Match("vasd bafd", @"(?<!s)d.*").Dump("Negative lookBehind");
 new[] { "erc ast", "ast erc", "erc qwerty ast", "zzz ast xxx erc" }
 .Where(i => Regex.IsMatch(i, @"^(?=.*erc)(?=.*ast)"))
 .Dump("AB || BA");
+
+Regex.Match("12", @"(?:\d)(\d)").Groups[1].Dump("non-capturing");

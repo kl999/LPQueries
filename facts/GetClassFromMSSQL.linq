@@ -63,9 +63,9 @@ PRINT 'public class ' + @tableName + '
 	END
 
 		If (@nullable = 'NO')
-			PRINT '    [Required]'
+			PRINT '    //[Required]'
 		if (@sType = 'String' and @maxLen <> '-1')
-			Print '    [MaxLength(' +  convert(varchar(4),@maxLen) + ')]'
+			Print '    //[MaxLength(' +  convert(varchar(4),@maxLen) + ')]'
 		SELECT @sProperty = '    public ' + @sType + ' ' + @columnName + ' { get; set;}'
 		PRINT @sProperty
 

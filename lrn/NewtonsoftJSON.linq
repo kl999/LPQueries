@@ -18,7 +18,7 @@ void Main()
 {
     var jstr = "";
     
-    /*Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+    Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
     serializer.Converters.Add(new Newtonsoft.Json.Converters.JavaScriptDateTimeConverter());
     serializer.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
     serializer.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
@@ -35,7 +35,7 @@ void Main()
         jstr = Encoding.UTF8.GetString(ms.ToArray());
         
         jstr.Dump("rez");
-    }*/
+    }
     
     jstr = JsonConvert.SerializeObject(new A(){ a = new B(), d = TstEnum.Tmth }, new Newtonsoft.Json.JsonSerializerSettings 
     { 
@@ -86,6 +86,10 @@ jstr.Dump();
     var o = JsonConvert.DeserializeObject<C>(json).Dump();
     
     o.b.Select(i => (i as JObject).ToObject<D>()).Dump();
+	
+	var jobj = JObject.Parse(@"{""a"": 1}");
+	jobj.Dump();
+	jobj["a"].Dump();
 }
 
 class A : IA

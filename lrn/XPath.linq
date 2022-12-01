@@ -1,14 +1,9 @@
 <Query Kind="Statements">
-  <Namespace>System.Diagnostics</Namespace>
-  <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing.Imaging</Namespace>
-  <Namespace>System.IO</Namespace>
   <Namespace>System.Reflection.Emit</Namespace>
   <Namespace>System.Runtime.InteropServices</Namespace>
-  <Namespace>System.Threading</Namespace>
   <Namespace>System.Threading.Tasks</Namespace>
-  <Namespace>System.Xml</Namespace>
 </Query>
 
 var doc = new XmlDocument();
@@ -109,3 +104,16 @@ var nsm = new XmlNamespaceManager(new NameTable());
 nsm.AddNamespace("z", "zns");
 
 el.XPathSelectElement("z:sub[@a!=\"1\"]", nsm).Dump("Namespaces");
+
+el = XElement.Parse(@"<root>
+  <el>
+  	<a>1</a>
+	<b>asd</b>
+  </el>
+  <el>
+  	<a>2</a>
+	<b>zxc</b>
+  </el>
+</root>");
+
+el.XPathSelectElement(@"el[a = ""2""]/b").Dump("Search by el");

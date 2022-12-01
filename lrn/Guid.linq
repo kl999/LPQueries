@@ -8,6 +8,10 @@ Guid g;
 for(int i = 0; i < 1; i++)
 {
     g = Guid.NewGuid();
-    g.Dump();
-    g.ToString().Length.Dump();
+    g.Dump(g.ToString().Length.ToString());
+    var asBase64 = System.Convert.ToBase64String(g.ToByteArray());
+    asBase64.Dump(asBase64.Length.ToString());
+    
+    foreach(var format in new[]{ "N", "D", "B", "P", "X" })
+        g.ToString(format).Dump(format + ", Len: " + g.ToString(format).Length.ToString());
 }

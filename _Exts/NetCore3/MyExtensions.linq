@@ -1,7 +1,5 @@
 <Query Kind="Program">
-  <Reference Relative="..\System.Drawing.Common.dll">C:\Users\samartsev\Desktop\LINQPad6\queries\Git\_Exts\System.Drawing.Common.dll</Reference>
   <Namespace>System.Data.OleDb</Namespace>
-  <Namespace>System.Drawing</Namespace>
   <Namespace>System.Reflection.Emit</Namespace>
 </Query>
 
@@ -42,10 +40,10 @@ void Main()
 	
 	//my.google("hi");
 	
-	imTst();
+	//imTst();
 }
 
-public void imTst()
+/*public void imTst()
 {
 	int h = 20,
 		w = 20;
@@ -77,7 +75,7 @@ public void imTst()
 	//bmp.fromBytes(buf);
 	
 	bmp.Dump("rez");
-}
+}*/
 
 public static class MyExtensions
 {
@@ -598,3 +596,22 @@ value = _value;
 }
 }
 }
+
+
+#region Advanced - How to multi-target
+
+// The NETx symbol is active when a query runs under .NET x or later.
+
+#if NET7
+// Code that requires .NET 7 or later
+#endif
+
+#if NET6
+// Code that requires .NET 6 or later
+#endif
+
+#if NET5
+// Code that requires .NET 5 or later
+#endif
+
+#endregion

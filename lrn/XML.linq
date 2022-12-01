@@ -1,7 +1,5 @@
 <Query Kind="Statements">
-  <Namespace>System.Diagnostics</Namespace>
   <Namespace>System.Drawing</Namespace>
-  <Namespace>System.Threading</Namespace>
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
@@ -62,3 +60,8 @@ foreach(var numEl in el.Elements("num"))
     sum += (int)numEl;
 
 sum.Dump("Explicit conversion");
+
+el = XElement.Parse(
+@"<a txt=""1&#10;2""/>");
+
+el.Attribute("txt").Value.Dump("New line in attribute");

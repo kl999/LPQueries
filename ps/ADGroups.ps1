@@ -1,7 +1,7 @@
 ﻿Get-ADGroup -Filter 'samAccountName -like "Paynet*"' |
 Format-Table SamAccountName, Name
 
-$grName = "PaynetHunter"
+$grName = "Нуралиева Лейла*"
 
 $gr = (Get-ADGroup $grName -Properties mail)
 

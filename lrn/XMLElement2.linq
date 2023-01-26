@@ -1,18 +1,13 @@
 <Query Kind="Statements">
-  <Namespace>System.Diagnostics</Namespace>
-  <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing.Imaging</Namespace>
-  <Namespace>System.IO</Namespace>
   <Namespace>System.Reflection.Emit</Namespace>
-  <Namespace>System.Threading</Namespace>
   <Namespace>System.Threading.Tasks</Namespace>
-  <Namespace>System.Xml</Namespace>
 </Query>
 
 var doc = new XmlDocument();
 
-doc.LoadXml(File.ReadAllText(@"c:\sp\1.txt", Encoding.GetEncoding(1251)));
+/*doc.LoadXml(File.ReadAllText(@"c:\sp\1.txt", Encoding.GetEncoding(1251)));
 
 XElement.Parse(doc.OuterXml).Dump();
 
@@ -20,4 +15,14 @@ doc.Cast<XmlElement>().Select(i => i.Cast<XmlElement>().Select(i2 => i2.InnerTex
 
 doc
 .SelectSingleNode("//parameter[@serviceId='38']")
-.Dump();
+.Dump();*/
+
+doc = new XmlDocument();
+
+doc.LoadXml(@"<a xmlns=""a.sd""><b>1</b></a>");
+
+XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
+nsmgr.AddNamespace("asd", "a.sd");
+XmlNode xmlNode = doc.DocumentElement.SelectSingleNode(@"//asd:b", nsmgr);
+
+xmlNode.Dump();

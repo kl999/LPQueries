@@ -1,5 +1,5 @@
 ﻿#Get-ADUser samartsev_26224
-[string[]] $srch = @("Нуралиева*Ержановна*")
+[string[]] $srch = @("Рахимова Мүнира*")
 #$srch += "*Platon.Samartsev@kaspi.kz*"
 
 foreach($srchs in $srch) {

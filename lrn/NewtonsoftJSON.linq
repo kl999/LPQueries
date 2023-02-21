@@ -46,13 +46,15 @@ void Main()
     
     jstr.Dump();
     
-    A  a = Newtonsoft.Json.JsonConvert.DeserializeObject<A>(jstr, new Newtonsoft.Json.JsonSerializerSettings 
+	A a;
+	
+    /*a = Newtonsoft.Json.JsonConvert.DeserializeObject<A>(jstr, new Newtonsoft.Json.JsonSerializerSettings 
     { 
         TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
         NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
     });
     
-    a.Dump();
+    a.Dump();*/
     
     jstr = @"
 {
@@ -72,13 +74,13 @@ void Main()
 
 jstr.Dump();
     
-    a = Newtonsoft.Json.JsonConvert.DeserializeObject<A>(jstr, new Newtonsoft.Json.JsonSerializerSettings 
+    /*a = Newtonsoft.Json.JsonConvert.DeserializeObject<A>(jstr, new Newtonsoft.Json.JsonSerializerSettings 
     { 
         TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
         NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
     });
     
-    a.Dump();
+    a.Dump();*/
     
     var c = new C{ a = 2, b = new object[]{ new D{ z = 5, x = "z" }, new D{ z = 5, x = "z" }, new{ q = 3 } } };
     var json = JsonConvert.SerializeObject(c).Dump();
@@ -90,6 +92,43 @@ jstr.Dump();
 	var jobj = JObject.Parse(@"{""a"": 1}");
 	jobj.Dump();
 	jobj["a"].Dump();
+	
+	json = """
+{
+	"Root": 
+{
+    "result": 0,
+    "txn_id": 123,
+    "comment": "",
+    "prv_txn": "2022/01-0004",
+    "sum": "1.00",
+    "fields": {
+        "field1": {
+            "@name": "ИИН Ученика",
+            "#text": "1111111555"
+        },
+        "field2": {
+            "@name": "ФИО ученика",
+            "#text": "22Иванов Иван Иванович"
+        },
+        "field3": {
+            "@name": "Номер соглашения о намерении",
+            "#text": "№2022/01-0004"
+        },
+        "field4": {
+            "@name": "Тип оплаты",
+            "#text": "Вступительный взнос"
+        },
+        "field5": {
+            "@name": "Учебный год",
+            "#text": "ученики 2022-2023"
+        }
+    }
+}
+}
+""";
+
+	JsonConvert.DeserializeXNode(json).Dump();
 }
 
 class A : IA
@@ -124,6 +163,7 @@ class B : IA
         ["Hi"] = 1,
         ["World"] = 17,
     };
+	public DateTime date = DateTime.Now;
 }
 
 class C

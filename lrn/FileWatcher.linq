@@ -1,11 +1,7 @@
 <Query Kind="Program">
-  <Namespace>System.Diagnostics</Namespace>
-  <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing.Imaging</Namespace>
-  <Namespace>System.IO</Namespace>
   <Namespace>System.Reflection.Emit</Namespace>
-  <Namespace>System.Threading</Namespace>
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
@@ -20,7 +16,7 @@ public static void Run()
 	// Create a new FileSystemWatcher and set its properties.
 	using(FileSystemWatcher watcher = new FileSystemWatcher())
     {
-        watcher.Path = @"C:\";//\sp\";
+        watcher.Path = @"C:\sh\";//\sp\";
     	
     	watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
         	| NotifyFilters.FileName | NotifyFilters.DirectoryName;

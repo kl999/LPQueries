@@ -1,0 +1,81 @@
+<label></label>
+
+<script>
+    var lbl = document.getElementsByTagName("label")[0]
+
+    lbl.innerHTML  = 'hi'
+
+    for (var arr=[],i=0;i<159;++i) arr[i]=i;
+
+    // http://stackoverflow.com/questions/962802#962890
+    function shuffle(array) {
+        var tmp, current, top = array.length;
+        if(top) while(--top) {
+            current = Math.floor(Math.random() * (top + 1));
+            tmp = array[current];
+            array[current] = array[top];
+            array[top] = tmp;
+        }
+        return array;
+    }
+
+    arr = shuffle(arr);
+    var str = ''; for(var i = 0; i < arr.length; i++) str = str + arr[i] + ','
+
+    console.log(arr)
+
+    var tmpArr = []
+
+    for(var step = 1; ; step = step * 2)
+    {
+        if(step >= arr.length)
+            break;
+        
+        var fstSub = 0, scndSub = step
+        var fstSubInd = 0, scndSubInd = 0
+        for(;;)
+        {
+            for(var i = 0; i < step * 2; i++)
+            {
+                if(fstSubInd >= step)
+                {
+                    for(; scndSubInd < step; scndSubInd++, i++) tmpArr[i] = arr[scndSub + scndSubInd]
+
+                    break
+                }
+                if(scndSubInd >= step)
+                {
+                    for(; fstSubInd < step; fstSubInd++, i++) tmpArr[i] = arr[fstSub + fstSubInd]
+
+                    break
+                }
+
+                if(arr[scndSub + scndSubInd] == undefined || arr[fstSub + fstSubInd] < arr[scndSub + scndSubInd])
+                {
+                    tmpArr[i] = arr[fstSub + fstSubInd]
+                    fstSubInd++
+                }
+                else
+                {
+                    tmpArr[i] = arr[scndSub + scndSubInd]
+                    scndSubInd++
+                }
+            }
+
+            for(var i = 0; i + fstSub < arr.length && i < step * 2; i++) arr[i + fstSub] = tmpArr[i]
+
+            fstSub = fstSub + step * 2
+            scndSub = fstSub + step
+
+            fstSubInd = 0
+            scndSubInd = 0
+
+            if(scndSub >= arr.length) break
+        }
+    }
+
+    var str2 = ''; for(var i = 0; i < arr.length; i++) str2 = str2 + arr[i] + ','
+
+    lbl.innerHTML  =  str + '<p>' + str2
+    console.log(arr)
+</script>

@@ -20,6 +20,8 @@ doc.LoadXml(@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
 </customer>
 </customers>");
 
+doc.SelectNodes(@"account/*[not(@*)]").Dump("Here");
+
 doc.SelectNodes ("//firstname").Dump("//");
 
 doc.SelectNodes ("customers/customer/firstname/../*").Dump("..");

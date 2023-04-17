@@ -1,18 +1,17 @@
 <Query Kind="Statements">
-  <Namespace>System.Diagnostics</Namespace>
-  <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing.Imaging</Namespace>
-  <Namespace>System.IO</Namespace>
   <Namespace>System.Reflection.Emit</Namespace>
-  <Namespace>System.Threading</Namespace>
   <Namespace>System.Threading.Tasks</Namespace>
-  <Namespace>System.Xml</Namespace>
 </Query>
 
 var doc = new XmlDocument();
 
 doc.LoadXml("<root><sub1 id=''/><sub2><sub2-1 id='2nested'><a/></sub2-1></sub2></root>");
+
+var root = doc.SelectSingleNode(@"root");
+
+root.SelectNodes("node()").Dump("all");
 
 doc.SelectSingleNode(@"root/sub1").Attributes["id"].InnerText = "15";
 

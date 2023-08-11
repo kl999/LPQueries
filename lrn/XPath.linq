@@ -10,6 +10,7 @@ var doc = new XmlDocument();
 
 doc.LoadXml(@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
 <customers>
+<account><id>1</id><val text=""asd""/></account>
 <customer id=""123"" status=""archived"">
 <firstname>Jim</firstname>
 <lastname>Bo</lastname>
@@ -20,7 +21,7 @@ doc.LoadXml(@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
 </customer>
 </customers>");
 
-doc.SelectNodes(@"account/*[not(@*)]").Dump("Here");
+doc.SelectNodes(@"customers/account/*[not(@*)]").Dump("Here");
 
 doc.SelectNodes ("//firstname").Dump("//");
 

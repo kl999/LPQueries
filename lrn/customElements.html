@@ -1,0 +1,77 @@
+<style>
+    div{
+        border: 1px solid brown;
+        width: 300px;
+        height: 300px;
+    }
+    ul{
+        color: aqua;
+    }
+</style>
+
+<template id="templ1">
+    <ul>
+        <li><slot name="slot1">def 1</slot></li>
+        <li><slot name="slot2">def 2</slot></li>
+    </ul>
+</template>
+
+<div>
+    <ul>
+        <li>1</li>
+        <li>11</li>
+    </ul>
+</div>
+
+<my-el side="50%" color="green">
+    <ul>
+        <li>1</li>
+        <li>asd</li>
+    </ul>
+</my-el>
+
+<templ-slot>
+    <div slot="slot1">fst</div>
+    <a href="hlink" slot="slot2">hlink</span>
+</templ-slot>
+
+<script>
+    class myEl extends HTMLElement {
+        constructor(){
+            super()
+
+            var shadow = this.attachShadow({ "mode": "open" })
+
+            var div = document.createElement('div')
+
+            var side = this.hasAttribute('side') ? this.getAttribute('side') : '20px'
+            var color = this.hasAttribute('color') ? this.getAttribute('color') : 'red'
+
+            div.style.width = side
+            div.style.height = side
+            div.style.backgroundColor = color
+
+            shadow.appendChild(div)
+
+            div.innerHTML = '<slot/>'//this.innerHTML
+
+            this.shadowRoot.innerHTML += 'X_'
+            shadow.innerHTML += 'Custom element.'
+        }
+    }
+
+    class templSlot extends HTMLElement{
+        constructor(){
+            super()
+
+            var shadow = this.attachShadow({ "mode": "open" })
+            
+            var templ = document.getElementById('templ1')
+
+            shadow.appendChild(templ.content.cloneNode(true))
+        }
+    }
+
+    customElements.define('my-el', myEl)
+    customElements.define('templ-slot', templSlot)
+</script>

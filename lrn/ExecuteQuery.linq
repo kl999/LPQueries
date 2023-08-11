@@ -1,25 +1,21 @@
 <Query Kind="Program">
   <Connection>
-    <ID>a6bbe6d0-1633-48b8-b9e9-e15038454d48</ID>
+    <ID>67658466-48a3-40db-b678-ecd54267da8b</ID>
     <Persist>true</Persist>
-    <Server>kaspi-rep</Server>
-    <NoPluralization>true</NoPluralization>
-    <IncludeSystemObjects>true</IncludeSystemObjects>
-    <Database>PaynetDB</Database>
-    <ShowServer>true</ShowServer>
+    <Server>(localdb)\MSSQLLocalDB</Server>
+    <Database>MyDB</Database>
+    <DriverData>
+      <LegacyMFA>false</LegacyMFA>
+    </DriverData>
   </Connection>
   <Namespace>System.Data.Linq.SqlClient</Namespace>
-  <Namespace>System.Diagnostics</Namespace>
-  <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing.Imaging</Namespace>
-  <Namespace>System.IO</Namespace>
   <Namespace>System.Net</Namespace>
   <Namespace>System.Net.Security</Namespace>
   <Namespace>System.Reflection.Emit</Namespace>
   <Namespace>System.Runtime.InteropServices</Namespace>
   <Namespace>System.Security.Cryptography.X509Certificates</Namespace>
-  <Namespace>System.Threading</Namespace>
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 

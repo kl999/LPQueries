@@ -7,7 +7,7 @@
 
 void Main()
 {
-	var str = @"Tj4q1qbcX0iQgHVZ3iyQYwG86YOMXOY_p2Ug7GVuyPl_0F9KqY4TvOglcaHZBj43_QftlcIpuWD8IpXt0CJHBoL9BXLNe7W6eQA3NvRVwkekc8kWZ6LnaR5Muh7fwfZE7Lu4teNPxRPEWmtHNIppdttd6jXfgiNX86XSZvAtJjnvSI684sZYxijaBFkwcf7GvYN-XxxRwk2cKGGDaVM49Ko6fFCkin5sHCtdUg6Al19F50iviGB5zlprEt1nPR9j0gTWuFpbph1KgtloV_hOmKHIHhtK-YSFT_mrwXreln7mSkLvQBed9LXgQrcYxKcGRyTvOpsHw2EncTyiqHXwfw";
+	var str = @"eyJuYmYiOjE2OTc2MDA3OTcsImV4cCI6MTY5NzYwNDM5NywiaXNzIjoiaHR0cHM6Ly9kZXYtYXV0aC5rYXp0aWNrZXQua3oiLCJjbGllbnRfaWQiOiJLYXp0aWNrZXQuT3BlbkFwaS5LYXNwaSIsImNsaWVudF9Jc01hcmtldFBsYWNlIjoidHJ1ZSIsImlhdCI6MTY5NzYwMDc5Nywic2NvcGUiOlsiTWFya2V0UGxhY2UiXX0";
 	
 	var rez = Base64Decode(str).Dump("Rez");
 	
@@ -30,9 +30,11 @@ public static string Base64Encode(string plainText)
 
 public static string Base64Decode(string base64EncodedData)
 {
-	base64EncodedData = base64EncodedData + new String('=', base64EncodedData.Length % 4);
+	base64EncodedData = base64EncodedData + new String('=', base64EncodedData.Length % 2);
 	
 	base64EncodedData = base64EncodedData.Replace('-', '+').Replace('_', '/');
+	
+	//base64EncodedData.Dump();
 	
 	var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
     

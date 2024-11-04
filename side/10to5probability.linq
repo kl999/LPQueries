@@ -1,5 +1,8 @@
 <Query Kind="Statements" />
 
+int aStat = 100,
+	bStat = 99;
+
 var rand = new Random();
 
 int aScore = 0, bScore = 0,
@@ -9,12 +12,12 @@ var log = new List<string>();
 
 for(int i = 0; i < sampleSize; i++)
 {
-	var a = rand.Next(300);
-	var b = rand.Next(150);
+	var a = rand.Next(aStat);
+	var b = rand.Next(bStat);
 	
 	var result = a > b;
 	
-	log.Add($"{a}/10 vs {b}/5: {result}");
+	log.Add($"{a}/{aStat} vs {b}/{bStat}: {result}");
 	
 	if(result) aScore++; else bScore++;
 }
@@ -22,6 +25,6 @@ for(int i = 0; i < sampleSize; i++)
 aScore.Dump("A Score");
 bScore.Dump("B Score");
 
-$"{bScore / (sampleSize / 100M)} %".Dump();
+$"{aScore / (sampleSize / 100M)} %".Dump();
 
 log.Dump();

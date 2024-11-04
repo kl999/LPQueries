@@ -11,7 +11,7 @@ dynamic getThreads()
 
 	ThreadPool.GetMaxThreads(out int workerMax, out int ioMax);
 
-	return new{ worker, io, workerMax, ioMax };
+	return new{ worker, workerMax, used = workerMax - worker, io, ioMax };
 }
 
 (getThreads() as object).Dump("Initial");
@@ -57,3 +57,4 @@ Parallel.ForEach(new int[1000], async (a, b, id) =>
 });
 
 trdStop = true;
+trd.Join();

@@ -4,9 +4,9 @@
   <Namespace>System.Text.Json.Serialization</Namespace>
 </Query>
 
-var str = System.Text.Json.JsonSerializer.Serialize(new A{ a = "asd", b = 2 }, new JsonSerializerOptions 
+var str = System.Text.Json.JsonSerializer.Serialize(new A{ a = "asd", b = 2 }, new System.Text.Json.JsonSerializerOptions 
 {
-	ReferenceHandler = ReferenceHandler.IgnoreCycles,
+	ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
 	WriteIndented = true
 }).Dump();
 

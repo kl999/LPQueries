@@ -7,7 +7,7 @@ void Main()
 	Parse()
 	.Select(i =>
 	{
-		if(i.Length < 2) return (i, false);
+		if(i.Count() < 2) return (i, false);
 		var prev = i.First();
 		if(prev == i[1]) return (i, false);
 		var isIncreasingBeg = i[1] - prev > 0;
@@ -25,13 +25,42 @@ void Main()
 	})
 	//.First()
 	.GroupBy(i => i.Item2)
-	.Dump();
+	//.Dump("Part one")
+	;
+	
+	//Parse()
+	//new[]{new[]{3,3,2,1}, new[]{1,2,2,3}}
+	new[]{new[]{73,75,78,81,80}}
+	.Select(i =>
+	{
+		if(i.Count() < 2) return (i, false);
+		
+		
+		var prev = i.First();
+		if(prev == i[1]) return (i, false);
+		var isIncreasingBeg = i[1] - prev > 0;
+		foreach(var next in i.Skip(1))
+		{
+			if(prev == next) return (i, false);
+			var dif = next - prev;
+			var isIncreasing = dif > 0;
+			if(isIncreasingBeg != isIncreasing) return (i, false);
+			if(Math.Abs(dif) - 1 > 2) return (i, false);
+			prev = next;
+		}
+		
+		return (i, true);
+	})
+	.Dump()
+	.Where(i => i.Item2)
+	.Count()
+	.Dump("Part two");
 }
 
-IEnumerable<int[]> Parse() => input
+IEnumerable<List<int>> Parse() => input
 .Replace("\r", "").Split('\n')
 .Select(row => row.Split(' ')
-	.Select(i => Int32.Parse(i)).ToArray());
+	.Select(i => Int32.Parse(i)).ToList());
 
 string input = @"73 75 78 81 80
 81 82 83 86 89 89

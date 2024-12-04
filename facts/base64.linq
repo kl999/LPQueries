@@ -12,6 +12,8 @@ void Main()
 	var rez = Base64Decode(str).Dump("Rez");
 	
 	Base64Encode("Hello! how u managed to understand such a complex cipher?").Dump();
+	
+	System.Buffers.Text.Base64Url.EncodeToString("The weather is sunny!").Dump();
     
     /*
     var raw = File.ReadAllText(@"in");

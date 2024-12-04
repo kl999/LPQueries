@@ -1008,7 +1008,9 @@ var input = @"97924   12015
 
 var inputParsed = input.Split('\n')
 .Select(i => Regex.Match(i, @"(\d+)\s+(\d+)"))
-.Select(i => (fst: Int64.Parse(i.Groups[1].Value), scnd: Int64.Parse(i.Groups[2].Value)))
+.Select(i => (fst: Int64.Parse(i.Groups[1].Value), scnd: Int64.Parse(i.Groups[2].Value)));
+
+var partOne = inputParsed
 .Aggregate(
 (a: new List<long>(), b: new List<long>()),
 (agg, i) =>
@@ -1019,6 +1021,38 @@ var inputParsed = input.Split('\n')
 },
 i => i);
 
-inputParsed.a.OrderBy(i => i).Zip(inputParsed.b.OrderBy(i => i))
+partOne.a.OrderBy(i => i).Zip(partOne.b.OrderBy(i => i))
 .Sum(i => Math.Abs(i.Item2 - i.Item1))
-.Dump();
+.Dump("Part one");
+
+var rightDict = inputParsed
+.GroupBy(i => i.scnd)
+.ToDictionary(i => i.Key, i => i.Count());
+
+inputParsed
+.GroupBy(i => i.fst)
+.Select(i => i.Key)
+.Select(i =>
+{
+	if(!rightDict.ContainsKey(i)) return 0;
+	return i * rightDict[i];
+})
+.Sum()
+.Dump("Part two");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

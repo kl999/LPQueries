@@ -22,14 +22,14 @@ void Main()
 		
 		var mapC = map.Select(i => i.ToArray()).ToArray();
 		
-		mapC[y][x] = '#';
+		mapC[y][x] = 'N';
 		
 		var steps = MakeTrek(mapC);
 		
 		if(steps < 0)
 		{
 			result2++;
-			Util.RawHtml($"<pre><code>{reconstruct(mapC)}</code></pre>").Dump($"{x}:{y}");
+			//Util.RawHtml($"<pre><code>{reconstruct(mapC)}</code></pre>").Dump($"{x}:{y}");
 		}
 	}
 	
@@ -59,6 +59,10 @@ int MakeTrek(char[][] mapC)
 			mapC[pos.y][pos.x] = (char)(mapC[pos.y][pos.x] + 1);
 		else
 			mapC[pos.y][pos.x] = '1';
+		if(mapC[pos.y][pos.x] == 52)
+		{
+			return -1;
+		}
 		
 		var rule = rules[rulePointer];
 		var newPos = ( x: pos.x + rule.x, y: pos.y + rule.y);
@@ -72,13 +76,10 @@ int MakeTrek(char[][] mapC)
 			{
 				pos = newPos;
 			}
-			else if(mapC[newPos.y][newPos.x] == 52)
-			{
-				return -1;
-			}
 			else
 			{
 				rulePointer++; if(rulePointer == rules.Length) rulePointer = 0;
+				mapC[pos.y][pos.x] = (char)(mapC[pos.y][pos.x] - 1);
 			}
 		}
 	}
@@ -102,12 +103,12 @@ char[][] Parse() => input.Replace("\r", "").Split('\n')
 .Select(i => i.ToArray())
 .ToArray();
 
-string input1 = @".#..
+string input2 = @".#..
 ...#
 #^..
 ....";
 
-string input2 = @"....#.....
+string input1 = @"....#.....
 .........#
 ..........
 ..#.......

@@ -13,7 +13,7 @@ void Main()
 	
 	Base64Encode("Hello! how u managed to understand such a complex cipher?").Dump();
 	
-	System.Buffers.Text.Base64Url.EncodeToString("The weather is sunny!").Dump();
+	//System.Buffers.Text.Base64Url.EncodeToString("The weather is sunny!").Dump();
     
     /*
     var raw = File.ReadAllText(@"in");
@@ -21,7 +21,15 @@ void Main()
     var rezBytes = System.Convert.FromBase64String(raw);
     
     File.WriteAllBytes(@"out", rezBytes);
-    */
+    /**/
+	
+	/*
+	var raw = File.ReadAllBytes(@"in");
+	
+	System.Convert.ToBase64String(raw).Dump("FromFile");
+	/**/
+	
+	"".Dump();
 }
 
 public static string Base64Encode(string plainText)

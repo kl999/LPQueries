@@ -1,6 +1,7 @@
 <Query Kind="Statements">
   <Reference>&lt;RuntimeDirectory&gt;\System.Configuration.dll</Reference>
   <Namespace>LINQPad.Controls</Namespace>
+  <Namespace>Microsoft.Extensions.Configuration</Namespace>
   <Namespace>System.Configuration</Namespace>
   <Namespace>System.Drawing</Namespace>
   <Namespace>System.Drawing.Imaging</Namespace>
@@ -44,3 +45,15 @@ ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Na
 ConfigurationManager.ConnectionStrings["MyDBCon"].Dump("Connection string");
 
 settings.Dump();
+
+/*
+using Microsoft.Extensions.Configuration;
+
+var configuration = new ConfigurationBuilder()
+    .AddInMemoryCollection(new Dictionary<string, string?>()
+    {
+        ["SomeKey"] = "SomeValue"
+    })
+    .Build();
+
+configuration.Dump();*/

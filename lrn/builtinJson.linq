@@ -16,6 +16,12 @@ var jn = JsonNode.Parse(str).Dump();
 
 var jn2 = jn["a"].Dump();
 
+jn["c"] = new JsonObject();
+jn["c"].AsObject().Add(new KeyValuePair<string, JsonNode>("d", new JsonArray()));
+jn["c"]["d"].AsArray().Add("f");
+
+jn.Dump("Add arr");
+
 ((string)jn2).Dump();
 jn2.GetValue<string>().Dump();
 

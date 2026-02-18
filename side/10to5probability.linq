@@ -1,7 +1,7 @@
 <Query Kind="Statements" />
 
-int aStat = 100,
-	bStat = 99;
+int aStat = 50,
+	bStat = 100;
 
 var rand = new Random();
 

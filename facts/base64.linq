@@ -15,16 +15,16 @@ void Main()
 	
 	//System.Buffers.Text.Base64Url.EncodeToString("The weather is sunny!").Dump();
     
-    /*
-    var raw = File.ReadAllText(@"in");
+    
+    /*var raw = File.ReadAllText(@"C:\Users\platon.s\Downloads\qrcode_airastana.zoom.us.png");
 
     var rezBytes = System.Convert.FromBase64String(raw);
     
     File.WriteAllBytes(@"out", rezBytes);
     /**/
 	
-	/*
-	var raw = File.ReadAllBytes(@"in");
+	
+	var raw = File.ReadAllBytes(@"C:\Users\platon.s\Downloads\css-is-awesome.jpg");
 	
 	System.Convert.ToBase64String(raw).Dump("FromFile");
 	/**/

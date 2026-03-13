@@ -1,5 +1,5 @@
 <Query Kind="Program">
-  <NuGetReference Version="0.13.8">BenchmarkDotNet</NuGetReference>
+  <NuGetReference Version="0.15.1">BenchmarkDotNet</NuGetReference>
   <Namespace>BenchmarkDotNet.Attributes</Namespace>
   <Namespace>BenchmarkDotNet.Configs</Namespace>
   <Namespace>BenchmarkDotNet.Diagnosers</Namespace>
@@ -22,7 +22,7 @@
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
-// This query can be #load-ed into other queries for BenchmarkDotNet support. *V=1.5*
+// This query can be #load-ed into other queries for BenchmarkDotNet support. *V=1.7*
 // You can modify the code to customize benchmarking behavior. LINQPad will merge any subsequent updates.
 
 #LINQPad optimize+   // Enable compiler/JIT optimizations when benchmarking.
@@ -407,7 +407,7 @@ namespace LINQPad.Benchmark
 			return value - overhead;
 		}
 
-		string FormatNanoseconds (double ns) => TimeInterval.FromNanoseconds (ns).ToString (CultureInfo.CurrentCulture, "N2");
+		string FormatNanoseconds (double ns) => TimeInterval.FromNanoseconds (ns).ToString();
 
 		public void AddMeasurement (Measurement m, bool includeUpperOutliers = false)
 		{
@@ -523,6 +523,7 @@ namespace LINQPad.Benchmark
 
 		public PowerPlanRestorer()
 		{
+			if (OperatingSystem.IsMacOS()) return;
 			IntPtr activePolicyGuid = IntPtr.Zero;
 			if (PowerGetActiveScheme (IntPtr.Zero, ref activePolicyGuid) == 0)
 			{

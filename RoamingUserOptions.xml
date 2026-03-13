@@ -11,4 +11,5 @@
   <NumericFormatStringForReals></NumericFormatStringForReals>
   <ShowLineNumbersInEditor>true</ShowLineNumbersInEditor>
   <ShowWhitespace>true</ShowWhitespace>
+  <AlwaysShelveOnExit>true</AlwaysShelveOnExit>
 </UserOptions>

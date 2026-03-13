@@ -8,7 +8,7 @@ void Main()
 	
 	for(int i = 0, offset = 0; i < 500; i++)
 	{
-		$"{offset + i}: {MagicNumber(offset + i)}".Dump();
+		$"{offset + i}: {MagicNumber(offset + i)}, %: {(i > 0 && i % 9 == 0 ? 9 : i % 9)}".Dump();
 	}
 }
 

@@ -6,13 +6,13 @@
   <IncludeAspNet>true</IncludeAspNet>
 </Query>
 
-string aExpr = "1d6 + 3";
+string aExpr = "1d6";
 string bExpr = "2d3";
 Random rand = new Random();
 
 void Main()
 {
-	Parse("2 * (2 + 3) * 4")
+	Parse("1d10 - (1 + 3)")
 		.Dump(includePrivate:true)
 		.Execute()
 		.Dump();
@@ -50,88 +50,62 @@ IOp Parse(string expr)
 	return PrattParse(tokens, 0);
 }
 
-IOp PrattParse(List<(string v, int t)> tokens, int minPow)
+IOp PrattParse(Queue<Token> tokens, int minPow)
 {
-	var token = Pop(tokens);
+	var token = tokens.Dequeue();
 	IOp left;
-	if (token.t == 2 && token.v == "(")
+	if (token.Type == TokenType.Utility && token.Value == Tokens.BraceOpen)
 	{
 		left = PrattParse(tokens, 1);
-		if(!tokens.Any() || Pick(tokens).v != ")")
+		if(!tokens.Any() || tokens.Peek().Value != Tokens.BraceClose)
 			throw new ApplicationException("Expected ')'!");
-		Pop(tokens);
+		tokens.Dequeue();
 	}
-	else if (token.t != 0)
-		throw new ApplicationException($"Incorrect token! '{token.v}'");
+	else if (token.Type != TokenType.Value)
+		throw new ApplicationException($"Incorrect token! '{token.Raw}'");
 	else
-		left = ParseVal(token.v);
+		left = ParseVal(token);
 	
 	for(;;)
 	{
 		if(!tokens.Any()) break;
-		token = Pick(tokens);
-		if (token.t == 2 && token.v == ")")
+		token = tokens.Peek();
+		if (token.Type == TokenType.Utility && token.Value == Tokens.BraceClose)
 			return left;
-		else if (token.t != 1)
-			throw new ApplicationException($"Incorrect token! '{token.v}'");
+		else if (token.Type != TokenType.Operator)
+			throw new ApplicationException($"Incorrect token! '{token.Raw}'");
 		
-		var pow = GetBindingPower(token.v);
+		var pow = GetBindingPower(token);
 		if(pow < minPow) break;
 		
-		Pop(tokens);
+		tokens.Dequeue();
 		
-		left = ParseOp(token.v, left, PrattParse(tokens, pow));
+		left = ParseOp(token, left, PrattParse(tokens, pow));
 	}
 	
 	return left;
 }
 
-(string v, int t) Pop(List<(string v, int t)> tokens)
+Queue<Token> GetTokens(string expr)
 {
-	var result = tokens.First();
-	tokens.RemoveAt(0);
-	return result;
-}
-
-(string v, int t) Pick(List<(string v, int t)> tokens)
-{
-	return tokens.First();
-}
-
-int GetBindingPower(string token)
-{
-	return token switch
-	{
-		"+" => 10,
-		"-" => 11,
-		"*" => 20,
-		"/" => 21,
-		"(" => 1,
-		")" => 0,
-		_ => throw new ApplicationException($"Incorrect token! '{token}'"),
-	};
-}
-
-List<(string v, int t)> GetTokens(string expr)
-{
-	var val = @"(?:(?:\d+d\d+)|\d+)";
+	var val = @"(?:(?:\d*d\d+)|\d+)";
 	var op = @"(?:\+|-|\*|/)";
 	var util = @"(?:\(|\))";
 	
-	var tokens = new List<(string v, int t)>();
+	var tokens = new Queue<Token>();
 	for(;;)
 	{
 		if (expr.Length == 0) break;
 		
 		var found = false;
-		foreach((string, int) o in new[]{(val, 0), (op, 1), (util, 2)})
+		foreach((string, TokenType) o in new[]{(val, TokenType.Value), (op, TokenType.Operator), (util, TokenType.Utility)})
 		{
 			var (ptrn, type) = o;
 			
 			var m = Regex.Match(expr, $"^{ptrn}");
 			if (m.Success)
 			{
-				tokens.Add((m.Value, type));
+				tokens.Enqueue(MakeToken(m.Value, type));
 				expr = expr.Substring(m.Length).Trim();
 				found = true;
 				break;
@@ -146,28 +120,95 @@ List<(string v, int t)> GetTokens(string expr)
 	return tokens;
 }
 
-IOp ParseVal(string expr)
+Token MakeToken(string raw, TokenType type)
 {
-	var sub = expr.Split('d');
+	return type switch
+	{
+		TokenType.Value => raw.Contains("d") ?
+			new Token(Tokens.RandomValue, TokenType.Value, raw)
+			: new Token(Tokens.Value, TokenType.Value, raw),
+		TokenType.Operator => raw switch
+			{
+				"+" => new Token(Tokens.Plus, TokenType.Operator, raw),
+				"-" => new Token(Tokens.Minus, TokenType.Operator, raw),
+				"*" => new Token(Tokens.Multiply, TokenType.Operator, raw),
+				"/" => new Token(Tokens.Divide, TokenType.Operator, raw),
+				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
+			},
+		TokenType.Utility => raw switch
+			{
+				"(" => new Token(Tokens.BraceOpen, TokenType.Utility, raw),
+				")" => new Token(Tokens.BraceClose, TokenType.Utility, raw),
+				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
+			},
+		_ => throw new ApplicationException($"UnknownType! '{type}'"),
+	};
+}
+
+IOp ParseVal(Token token)
+{
+	if (token.Raw.StartsWith('d'))
+		return new RandOp(1, Int32.Parse(token.Raw.Substring(1)), rand);
+	var sub = token.Raw.Split('d');
 	
 	return sub.Length switch
 	{
 		1 => new ValOp(Int32.Parse(sub[0])),
 		2 => new RandOp(Int32.Parse(sub[0]), Int32.Parse(sub[1]), rand),
-		_ => throw new ApplicationException($"Incorrect expression! '{expr}'"),
+		_ => throw new ApplicationException($"Incorrect expression! '{token.Raw}'"),
 	};
 }
 
-IOp ParseOp(string expr, IOp left, IOp right)
+int GetBindingPower(Token token)
 {
-	return expr switch
+	return token.Value switch
 	{
-		"+" => new AddOp(left, right),
-		"-" => new SubOp(left, right),
-		"*" => new MulOp(left, right),
-		"/" => new DivOp(left, right),
-		_ => throw new ApplicationException($"Incorrect expression! '{expr}'"),
+		Tokens.Plus => 10,
+		Tokens.Minus => 11,
+		Tokens.Multiply => 20,
+		Tokens.Divide => 21,
+		Tokens.BraceOpen => 1,
+		Tokens.BraceClose => 0,
+		_ => throw new ApplicationException($"Incorrect token! '{token}'"),
 	};
+}
+
+IOp ParseOp(Token token, IOp left, IOp right)
+{
+	return token.Value switch
+	{
+		Tokens.Plus => new AddOp(left, right),
+		Tokens.Minus => new SubOp(left, right),
+		Tokens.Multiply => new MulOp(left, right),
+		Tokens.Divide => new DivOp(left, right),
+		_ => throw new ApplicationException($"Incorrect expression! '{token.Raw}'"),
+	};
+}
+
+class Token(Tokens _value, TokenType _type, string _raw)
+{
+	public Tokens Value => _value;
+	public TokenType Type => _type;
+	public string Raw => _raw;
+}
+enum Tokens
+{
+	Unknown = 0,
+	Value = 1,
+	RandomValue,
+	Plus,
+	Minus,
+	Multiply,
+	Divide,
+	BraceOpen,
+	BraceClose,
+}
+enum TokenType
+{
+	Unknown = 0,
+	Value = 1,
+	Operator = 2,
+	Utility = 3,
 }
 
 interface IOp

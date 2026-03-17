@@ -12,7 +12,7 @@ Random rand = new Random();
 
 void Main()
 {
-	Parse("1d10 - (1 + 3)")
+	Parse("d10 * (3 + d2) - 1")
 		.Dump(includePrivate:true)
 		.Execute()
 		.Dump();
@@ -120,31 +120,6 @@ Queue<Token> GetTokens(string expr)
 	return tokens;
 }
 
-Token MakeToken(string raw, TokenType type)
-{
-	return type switch
-	{
-		TokenType.Value => raw.Contains("d") ?
-			new Token(Tokens.RandomValue, TokenType.Value, raw)
-			: new Token(Tokens.Value, TokenType.Value, raw),
-		TokenType.Operator => raw switch
-			{
-				"+" => new Token(Tokens.Plus, TokenType.Operator, raw),
-				"-" => new Token(Tokens.Minus, TokenType.Operator, raw),
-				"*" => new Token(Tokens.Multiply, TokenType.Operator, raw),
-				"/" => new Token(Tokens.Divide, TokenType.Operator, raw),
-				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
-			},
-		TokenType.Utility => raw switch
-			{
-				"(" => new Token(Tokens.BraceOpen, TokenType.Utility, raw),
-				")" => new Token(Tokens.BraceClose, TokenType.Utility, raw),
-				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
-			},
-		_ => throw new ApplicationException($"UnknownType! '{type}'"),
-	};
-}
-
 IOp ParseVal(Token token)
 {
 	if (token.Raw.StartsWith('d'))
@@ -163,12 +138,12 @@ int GetBindingPower(Token token)
 {
 	return token.Value switch
 	{
+		Tokens.BraceClose => 0,
+		Tokens.BraceOpen => 1,
 		Tokens.Plus => 10,
 		Tokens.Minus => 11,
 		Tokens.Multiply => 20,
 		Tokens.Divide => 21,
-		Tokens.BraceOpen => 1,
-		Tokens.BraceClose => 0,
 		_ => throw new ApplicationException($"Incorrect token! '{token}'"),
 	};
 }
@@ -183,32 +158,6 @@ IOp ParseOp(Token token, IOp left, IOp right)
 		Tokens.Divide => new DivOp(left, right),
 		_ => throw new ApplicationException($"Incorrect expression! '{token.Raw}'"),
 	};
-}
-
-class Token(Tokens _value, TokenType _type, string _raw)
-{
-	public Tokens Value => _value;
-	public TokenType Type => _type;
-	public string Raw => _raw;
-}
-enum Tokens
-{
-	Unknown = 0,
-	Value = 1,
-	RandomValue,
-	Plus,
-	Minus,
-	Multiply,
-	Divide,
-	BraceOpen,
-	BraceClose,
-}
-enum TokenType
-{
-	Unknown = 0,
-	Value = 1,
-	Operator = 2,
-	Utility = 3,
 }
 
 interface IOp
@@ -245,3 +194,55 @@ class DivOp(IOp left, IOp right) : IOp
 {
 	public int Execute() => left.Execute() / right.Execute();
 }
+
+Token MakeToken(string raw, TokenType type)
+{
+	return type switch
+	{
+		TokenType.Value => raw.Contains("d") ?
+			new Token(Tokens.RandomValue, TokenType.Value, raw)
+			: new Token(Tokens.Value, TokenType.Value, raw),
+		TokenType.Operator => raw switch
+			{
+				"+" => new Token(Tokens.Plus, TokenType.Operator, raw),
+				"-" => new Token(Tokens.Minus, TokenType.Operator, raw),
+				"*" => new Token(Tokens.Multiply, TokenType.Operator, raw),
+				"/" => new Token(Tokens.Divide, TokenType.Operator, raw),
+				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
+			},
+		TokenType.Utility => raw switch
+			{
+				"(" => new Token(Tokens.BraceOpen, TokenType.Utility, raw),
+				")" => new Token(Tokens.BraceClose, TokenType.Utility, raw),
+				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
+			},
+		_ => throw new ApplicationException($"UnknownType! '{type}'"),
+	};
+}
+
+class Token(Tokens _value, TokenType _type, string _raw)
+{
+	public Tokens Value => _value;
+	public TokenType Type => _type;
+	public string Raw => _raw;
+}
+enum Tokens
+{
+	Unknown = 0,
+	Value = 1,
+	RandomValue,
+	Plus,
+	Minus,
+	Multiply,
+	Divide,
+	BraceOpen,
+	BraceClose,
+}
+enum TokenType
+{
+	Unknown = 0,
+	Value = 1,
+	Operator = 2,
+	Utility = 3,
+}
+

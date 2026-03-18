@@ -6,39 +6,43 @@
   <IncludeAspNet>true</IncludeAspNet>
 </Query>
 
-string aExpr = "1d6";
-string bExpr = "2d3";
+string expression =
+	"0;1";
+	//"d52 <= 20 AND d51 <= 4 AND d50 <= 3 AND d49 <= 2 AND d48 <= 1";
+int sampleSize =
+	100_000;
+	//100_000_000;
 Random rand = new Random();
 
 void Main()
 {
-	Parse("d10 * (3 + d2) - 1")
+	/*Parse("d5 COMP d6 COMP d7")
 		.Dump(includePrivate:true)
 		.Execute()
-		.Dump();
-	
-	var aScore = 0;
-	
-	var a = Parse(aExpr);/*new OpVal(
+		.Dump();*/
+	var expr = Parse(expression);/*new OpVal(
 		new AddOp(
 			new RandVal(2, 6, rand),
 			new Val(1)
 		)
 	);*/
-	var b = Parse(bExpr);
 	
-	for(int i = 0; i < 100_000; i++)
+	var results = new Dictionary<string, long>();
+	
+	for(int i = 0; i < sampleSize; i++)
 	{
-		var aRez = a.Execute();
-		var bRez = b.Execute();
+		var result = expr.Execute().ToString();
 		
-		//$"{aRez} > {bRez}".Dump();
+		//$"{result}".Dump();
 		
-		if(aRez > bRez)
-			aScore++;
+		if(results.ContainsKey(result))
+			results[result]++;
+		else
+			results[result] = 1;
 	}
 	
-	$"{(aScore / 100_000M) * 100:0.00} %".Dump();
+	foreach(var result in results.OrderBy(i => i.Key))
+		$"{result.Key}: {(((decimal)result.Value) / sampleSize) * 100:0.00########} %".Dump();
 }
 
 IOp Parse(string expr)
@@ -80,7 +84,7 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 		
 		tokens.Dequeue();
 		
-		left = ParseOp(token, left, PrattParse(tokens, pow));
+		left = ParseOp(token, left, PrattParse(tokens, pow + 1));
 	}
 	
 	return left;
@@ -89,8 +93,8 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 Queue<Token> GetTokens(string expr)
 {
 	var val = @"(?:(?:\d*d\d+)|\d+)";
-	var op = @"(?:\+|-|\*|/)";
-	var util = @"(?:\(|\))";
+	var op = @"(?:\+|-|\*|/|COMP|AND|OR|>=|>|<=|<|==|!=)";
+	var util = @"(?:\(|\)|;)";
 	
 	var tokens = new Queue<Token>();
 	for(;;)
@@ -140,10 +144,21 @@ int GetBindingPower(Token token)
 	{
 		Tokens.BraceClose => 0,
 		Tokens.BraceOpen => 1,
-		Tokens.Plus => 10,
-		Tokens.Minus => 11,
-		Tokens.Multiply => 20,
-		Tokens.Divide => 21,
+		Tokens.VarSeparator => 2,
+		Tokens.VarsDeclareEnd => 3,
+		Tokens.Compare => 10,
+		Tokens.Or => 11,
+		Tokens.And => 12,
+		Tokens.Greater => 20,
+		Tokens.GreaterOrEqual => 21,
+		Tokens.Less => 22,
+		Tokens.LessOrEqual => 23,
+		Tokens.Equal => 24,
+		Tokens.NotEqual => 25,
+		Tokens.Plus => 30,
+		Tokens.Minus => 31,
+		Tokens.Multiply => 40,
+		Tokens.Divide => 41,
 		_ => throw new ApplicationException($"Incorrect token! '{token}'"),
 	};
 }
@@ -152,12 +167,44 @@ IOp ParseOp(Token token, IOp left, IOp right)
 {
 	return token.Value switch
 	{
+		Tokens.Compare => new CompOp(left, right),
+		Tokens.And => new AndOp(left, right),
+		Tokens.Or => new OrOp(left, right),
+		Tokens.Greater => new GreaterOp(left, right),
+		Tokens.GreaterOrEqual => new GreaterOrEqualOp(left, right),
+		Tokens.Less => new LessOp(left, right),
+		Tokens.LessOrEqual => new LessOrEqualOp(left, right),
+		Tokens.Equal => new EqualOp(left, right),
+		Tokens.NotEqual => new NotEqualOp(left, right),
 		Tokens.Plus => new AddOp(left, right),
 		Tokens.Minus => new SubOp(left, right),
 		Tokens.Multiply => new MulOp(left, right),
 		Tokens.Divide => new DivOp(left, right),
 		_ => throw new ApplicationException($"Incorrect expression! '{token.Raw}'"),
 	};
+}
+
+class Round
+{
+	public List<Variable> Variables = new();
+	public Round Previous = null;
+}
+
+class Variable
+{
+	public int value;
+	public IOp op;
+	
+	public Variable(int _value, IOp _op)
+	{
+		value = _value;
+		op = _op;
+	}
+	
+	public void Collapse()
+	{
+		value = op.Execute();
+	}
 }
 
 interface IOp
@@ -173,6 +220,81 @@ class ValOp(int val) : IOp
 class RandOp(int ct, int max, Random rand) : IOp
 {
 	public int Execute() => Enumerable.Range(0, ct).Sum(i => rand.Next(max) + 1);
+}
+
+class CompOp(IOp left, IOp right) : IOp
+{
+	public int Execute()
+	{
+		var contestants = GetContestants();
+		
+		var i = 1;
+		var max = contestants.First();
+		var maxInd = i;
+		i++;
+		foreach(var val in contestants.Skip(1))
+		{
+			if (val > max)
+			{
+				max = val;
+				maxInd = i;
+			}
+			i++;
+		}
+		
+		return maxInd;
+	}
+	private List<int> GetContestants()
+	{
+		var result = new List<int>();
+		if(left is CompOp c)
+			result.AddRange(c.GetContestants());
+		else
+			result.Add(left.Execute());
+		result.Add(right.Execute());
+		
+		return result;
+	}
+}
+
+class AndOp(IOp left, IOp right) : IOp
+{
+	public int Execute() => left.Execute() > 0 && right.Execute() > 0 ? 1 : 0;
+}
+
+class OrOp(IOp left, IOp right) : IOp
+{
+	public int Execute() => left.Execute() > 0 || right.Execute() > 0 ? 1 : 0;
+}
+
+class GreaterOp(IOp left, IOp right) : IOp
+{
+	public int Execute() => left.Execute() > right.Execute() ? 1 : 0;
+}
+
+class GreaterOrEqualOp(IOp left, IOp right) : IOp
+{
+	public int Execute() => left.Execute() >= right.Execute() ? 1 : 0;
+}
+
+class LessOp(IOp left, IOp right) : IOp
+{
+	public int Execute() => left.Execute() < right.Execute() ? 1 : 0;
+}
+
+class LessOrEqualOp(IOp left, IOp right) : IOp
+{
+	public int Execute() => left.Execute() <= right.Execute() ? 1 : 0;
+}
+
+class EqualOp(IOp left, IOp right) : IOp
+{
+	public int Execute() => left.Execute() == right.Execute() ? 1 : 0;
+}
+
+class NotEqualOp(IOp left, IOp right) : IOp
+{
+	public int Execute() => left.Execute() != right.Execute() ? 1 : 0;
 }
 
 class AddOp(IOp left, IOp right) : IOp
@@ -204,6 +326,15 @@ Token MakeToken(string raw, TokenType type)
 			: new Token(Tokens.Value, TokenType.Value, raw),
 		TokenType.Operator => raw switch
 			{
+				"COMP" => new Token(Tokens.Compare, TokenType.Operator, raw),
+				"AND" => new Token(Tokens.And, TokenType.Operator, raw),
+				"OR" => new Token(Tokens.Or, TokenType.Operator, raw),
+				">" => new Token(Tokens.Greater, TokenType.Operator, raw),
+				">=" => new Token(Tokens.GreaterOrEqual, TokenType.Operator, raw),
+				"<" => new Token(Tokens.Less, TokenType.Operator, raw),
+				"<=" => new Token(Tokens.LessOrEqual, TokenType.Operator, raw),
+				"==" => new Token(Tokens.Equal, TokenType.Operator, raw),
+				"!=" => new Token(Tokens.NotEqual, TokenType.Operator, raw),
 				"+" => new Token(Tokens.Plus, TokenType.Operator, raw),
 				"-" => new Token(Tokens.Minus, TokenType.Operator, raw),
 				"*" => new Token(Tokens.Multiply, TokenType.Operator, raw),
@@ -214,6 +345,8 @@ Token MakeToken(string raw, TokenType type)
 			{
 				"(" => new Token(Tokens.BraceOpen, TokenType.Utility, raw),
 				")" => new Token(Tokens.BraceClose, TokenType.Utility, raw),
+				";" => new Token(Tokens.VarSeparator, TokenType.Utility, raw),
+				"|" => new Token(Tokens.VarsDeclareEnd, TokenType.Utility, raw),
 				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
 			},
 		_ => throw new ApplicationException($"UnknownType! '{type}'"),
@@ -229,14 +362,25 @@ class Token(Tokens _value, TokenType _type, string _raw)
 enum Tokens
 {
 	Unknown = 0,
-	Value = 1,
+	BraceOpen = 1,
+	BraceClose,
+	VarSeparator,
+	VarsDeclareEnd,
+	Compare,
+	Or,
+	And,
+	Greater,
+	GreaterOrEqual,
+	Less,
+	LessOrEqual,
+	Equal,
+	NotEqual,
+	Value,
 	RandomValue,
 	Plus,
 	Minus,
 	Multiply,
 	Divide,
-	BraceOpen,
-	BraceClose,
 }
 enum TokenType
 {

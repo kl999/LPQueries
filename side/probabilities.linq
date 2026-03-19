@@ -7,7 +7,7 @@
 </Query>
 
 string expression =
-	"0;1";
+	"2d6|1";
 	//"d52 <= 20 AND d51 <= 4 AND d50 <= 3 AND d49 <= 2 AND d48 <= 1";
 int sampleSize =
 	100_000;
@@ -16,22 +16,15 @@ Random rand = new Random();
 
 void Main()
 {
-	/*Parse("d5 COMP d6 COMP d7")
-		.Dump(includePrivate:true)
-		.Execute()
-		.Dump();*/
-	var expr = Parse(expression);/*new OpVal(
-		new AddOp(
-			new RandVal(2, 6, rand),
-			new Val(1)
-		)
-	);*/
+	var lastRound = Parse(expression)
+		.Dump(includePrivate:true)//new Var(new Var(Op), Op)
+		;
 	
 	var results = new Dictionary<string, long>();
 	
 	for(int i = 0; i < sampleSize; i++)
 	{
-		var result = expr.Execute().ToString();
+		var result = String.Join(";", lastRound.GetResults());
 		
 		//$"{result}".Dump();
 		
@@ -45,22 +38,28 @@ void Main()
 		$"{result.Key}: {(((decimal)result.Value) / sampleSize) * 100:0.00########} %".Dump();
 }
 
-IOp Parse(string expr)
+Variable Parse(string expr)
 {
 	var tokens = GetTokens(expr)
 		.Dump()
 		;
 	
-	return PrattParse(tokens, 0);
+	var parsed = PrattParse(tokens, 0);
+	
+	if(parsed is Variable variable)
+		return variable;
+	
+	return new Variable(parsed);
 }
 
 IOp PrattParse(Queue<Token> tokens, int minPow)
 {
 	var token = tokens.Dequeue();
 	IOp left;
-	if (token.Type == TokenType.Utility && token.Value == Tokens.BraceOpen)
+	
+	if (token.Value == Tokens.BraceOpen)
 	{
-		left = PrattParse(tokens, 1);
+		left = PrattParse(tokens, GetBindingPower(token));
 		if(!tokens.Any() || tokens.Peek().Value != Tokens.BraceClose)
 			throw new ApplicationException("Expected ')'!");
 		tokens.Dequeue();
@@ -74,7 +73,7 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 	{
 		if(!tokens.Any()) break;
 		token = tokens.Peek();
-		if (token.Type == TokenType.Utility && token.Value == Tokens.BraceClose)
+		if (token.Value == Tokens.BraceClose)
 			return left;
 		else if (token.Type != TokenType.Operator)
 			throw new ApplicationException($"Incorrect token! '{token.Raw}'");
@@ -90,11 +89,59 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 	return left;
 }
 
+int GetBindingPower(Token token)
+{
+	return token.Value switch
+	{
+		Tokens.VarSeparator => 0,
+		Tokens.RoundSeparator => 1,
+		Tokens.BraceClose => 2,
+		Tokens.BraceOpen => 3,
+		Tokens.Compare => 10,
+		Tokens.Or => 11,
+		Tokens.And => 12,
+		Tokens.Greater => 20,
+		Tokens.GreaterOrEqual => 21,
+		Tokens.Less => 22,
+		Tokens.LessOrEqual => 23,
+		Tokens.Equal => 24,
+		Tokens.NotEqual => 25,
+		Tokens.Plus => 30,
+		Tokens.Minus => 31,
+		Tokens.Multiply => 40,
+		Tokens.Divide => 41,
+		_ => throw new ApplicationException($"Incorrect token! '{token}'"),
+	};
+}
+
+IOp ParseOp(Token token, IOp left, IOp right)
+{
+	return token.Value switch
+	{
+		Tokens.RoundSeparator => throw new NotImplementedException("Wtf Idk!!!"),
+		Tokens.VarSeparator => new Variable(left, right),
+		Tokens.Compare => new CompOp(left, right),
+		Tokens.And => new AndOp(left, right),
+		Tokens.Or => new OrOp(left, right),
+		Tokens.Greater => new GreaterOp(left, right),
+		Tokens.GreaterOrEqual => new GreaterOrEqualOp(left, right),
+		Tokens.Less => new LessOp(left, right),
+		Tokens.LessOrEqual => new LessOrEqualOp(left, right),
+		Tokens.Equal => new EqualOp(left, right),
+		Tokens.NotEqual => new NotEqualOp(left, right),
+		Tokens.Plus => new AddOp(left, right),
+		Tokens.Minus => new SubOp(left, right),
+		Tokens.Multiply => new MulOp(left, right),
+		Tokens.Divide => new DivOp(left, right),
+		_ => throw new ApplicationException($"Incorrect expression! '{token.Raw}'"),
+	};
+}
+
 Queue<Token> GetTokens(string expr)
 {
 	var val = @"(?:(?:\d*d\d+)|\d+)";
-	var op = @"(?:\+|-|\*|/|COMP|AND|OR|>=|>|<=|<|==|!=)";
-	var util = @"(?:\(|\)|;)";
+	var op = @"(?:\+|-|\*|/|COMP|AND|OR|>=|>|<=|<|==|!=|;|\|)";
+	var util = @"(?:\(|\))";
 	
 	var tokens = new Queue<Token>();
 	for(;;)
@@ -138,72 +185,58 @@ IOp ParseVal(Token token)
 	};
 }
 
-int GetBindingPower(Token token)
+/*class Round : IOp
 {
-	return token.Value switch
-	{
-		Tokens.BraceClose => 0,
-		Tokens.BraceOpen => 1,
-		Tokens.VarSeparator => 2,
-		Tokens.VarsDeclareEnd => 3,
-		Tokens.Compare => 10,
-		Tokens.Or => 11,
-		Tokens.And => 12,
-		Tokens.Greater => 20,
-		Tokens.GreaterOrEqual => 21,
-		Tokens.Less => 22,
-		Tokens.LessOrEqual => 23,
-		Tokens.Equal => 24,
-		Tokens.NotEqual => 25,
-		Tokens.Plus => 30,
-		Tokens.Minus => 31,
-		Tokens.Multiply => 40,
-		Tokens.Divide => 41,
-		_ => throw new ApplicationException($"Incorrect token! '{token}'"),
-	};
-}
-
-IOp ParseOp(Token token, IOp left, IOp right)
-{
-	return token.Value switch
-	{
-		Tokens.Compare => new CompOp(left, right),
-		Tokens.And => new AndOp(left, right),
-		Tokens.Or => new OrOp(left, right),
-		Tokens.Greater => new GreaterOp(left, right),
-		Tokens.GreaterOrEqual => new GreaterOrEqualOp(left, right),
-		Tokens.Less => new LessOp(left, right),
-		Tokens.LessOrEqual => new LessOrEqualOp(left, right),
-		Tokens.Equal => new EqualOp(left, right),
-		Tokens.NotEqual => new NotEqualOp(left, right),
-		Tokens.Plus => new AddOp(left, right),
-		Tokens.Minus => new SubOp(left, right),
-		Tokens.Multiply => new MulOp(left, right),
-		Tokens.Divide => new DivOp(left, right),
-		_ => throw new ApplicationException($"Incorrect expression! '{token.Raw}'"),
-	};
-}
-
-class Round
-{
-	public List<Variable> Variables = new();
-	public Round Previous = null;
-}
-
-class Variable
-{
-	public int value;
-	public IOp op;
+	public Variable Left = null;
+	public Variable Right = null;
 	
-	public Variable(int _value, IOp _op)
+	public Round(Variable _variable)
 	{
-		value = _value;
-		op = _op;
+		Left = _variable;
 	}
 	
-	public void Collapse()
+	public List<Variable> Run()
 	{
-		value = op.Execute();
+		if (Previous is not null) Variables = Previous.Run();
+	
+		foreach(var v in Variables)
+			v.Collapse();
+		
+		return Variables;
+	}
+}*/
+
+class Variable : IOp
+{
+	public IOp Left;
+	public IOp Right;
+	
+	public Variable(IOp _op)
+	{
+		Left = _op;
+	}
+	
+	public Variable(IOp _left, IOp _right)
+	{
+		Left = _left;
+		Right = _right;
+	}
+	
+	public int Execute() => Right.Execute();
+	
+	public List<int> GetResults()
+	{
+		var result = new List<int>();
+		
+		if (Left is Variable variable)
+			result.AddRange(variable.GetResults());
+		else
+			result.Add(Left.Execute());
+		
+		if (Right is not null)
+			result.Add(Right.Execute());
+		
+		return result;
 	}
 }
 
@@ -339,14 +372,14 @@ Token MakeToken(string raw, TokenType type)
 				"-" => new Token(Tokens.Minus, TokenType.Operator, raw),
 				"*" => new Token(Tokens.Multiply, TokenType.Operator, raw),
 				"/" => new Token(Tokens.Divide, TokenType.Operator, raw),
+				";" => new Token(Tokens.VarSeparator, TokenType.Operator, raw),
+				"|" => new Token(Tokens.RoundSeparator, TokenType.Operator, raw),
 				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
 			},
 		TokenType.Utility => raw switch
 			{
 				"(" => new Token(Tokens.BraceOpen, TokenType.Utility, raw),
 				")" => new Token(Tokens.BraceClose, TokenType.Utility, raw),
-				";" => new Token(Tokens.VarSeparator, TokenType.Utility, raw),
-				"|" => new Token(Tokens.VarsDeclareEnd, TokenType.Utility, raw),
 				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
 			},
 		_ => throw new ApplicationException($"UnknownType! '{type}'"),
@@ -365,7 +398,7 @@ enum Tokens
 	BraceOpen = 1,
 	BraceClose,
 	VarSeparator,
-	VarsDeclareEnd,
+	RoundSeparator,
 	Compare,
 	Or,
 	And,

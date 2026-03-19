@@ -7,7 +7,7 @@
 </Query>
 
 string expression =
-	"2d6|1";
+	"d2;d4|[1];[2];[(1<2)+1]-[1]";
 	//"d52 <= 20 AND d51 <= 4 AND d50 <= 3 AND d49 <= 2 AND d48 <= 1";
 int sampleSize =
 	100_000;
@@ -38,7 +38,7 @@ void Main()
 		$"{result.Key}: {(((decimal)result.Value) / sampleSize) * 100:0.00########} %".Dump();
 }
 
-Variable Parse(string expr)
+Round Parse(string expr)
 {
 	var tokens = GetTokens(expr)
 		.Dump()
@@ -46,10 +46,12 @@ Variable Parse(string expr)
 	
 	var parsed = PrattParse(tokens, 0);
 	
-	if(parsed is Variable variable)
-		return variable;
+	if(parsed is Round round)
+		return round;
+	else if(parsed is Variable variable)
+		return new Round(variable);
 	
-	return new Variable(parsed);
+	return new Round(new Variable(parsed));
 }
 
 IOp PrattParse(Queue<Token> tokens, int minPow)
@@ -64,6 +66,13 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 			throw new ApplicationException("Expected ')'!");
 		tokens.Dequeue();
 	}
+	else if (token.Value == Tokens.SquareBracketOpen)
+	{
+		left = new ContextAccessOp(PrattParse(tokens, GetBindingPower(token)));
+		if(!tokens.Any() || tokens.Peek().Value != Tokens.SquareBracketClose)
+			throw new ApplicationException("Expected ']'!");
+		tokens.Dequeue();
+	}
 	else if (token.Type != TokenType.Value)
 		throw new ApplicationException($"Incorrect token! '{token.Raw}'");
 	else
@@ -74,6 +83,8 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 		if(!tokens.Any()) break;
 		token = tokens.Peek();
 		if (token.Value == Tokens.BraceClose)
+			return left;
+		else if (token.Value == Tokens.SquareBracketClose)
 			return left;
 		else if (token.Type != TokenType.Operator)
 			throw new ApplicationException($"Incorrect token! '{token.Raw}'");
@@ -93,10 +104,12 @@ int GetBindingPower(Token token)
 {
 	return token.Value switch
 	{
-		Tokens.VarSeparator => 0,
-		Tokens.RoundSeparator => 1,
+		Tokens.RoundSeparator => 0,
+		Tokens.VarSeparator => 1,
 		Tokens.BraceClose => 2,
 		Tokens.BraceOpen => 3,
+		Tokens.SquareBracketClose => 4,
+		Tokens.SquareBracketOpen => 5,
 		Tokens.Compare => 10,
 		Tokens.Or => 11,
 		Tokens.And => 12,
@@ -118,7 +131,7 @@ IOp ParseOp(Token token, IOp left, IOp right)
 {
 	return token.Value switch
 	{
-		Tokens.RoundSeparator => throw new NotImplementedException("Wtf Idk!!!"),
+		Tokens.RoundSeparator => new Round(left, right),
 		Tokens.VarSeparator => new Variable(left, right),
 		Tokens.Compare => new CompOp(left, right),
 		Tokens.And => new AndOp(left, right),
@@ -141,7 +154,7 @@ Queue<Token> GetTokens(string expr)
 {
 	var val = @"(?:(?:\d*d\d+)|\d+)";
 	var op = @"(?:\+|-|\*|/|COMP|AND|OR|>=|>|<=|<|==|!=|;|\|)";
-	var util = @"(?:\(|\))";
+	var util = @"(?:\(|\)|\[|\])";
 	
 	var tokens = new Queue<Token>();
 	for(;;)
@@ -185,26 +198,49 @@ IOp ParseVal(Token token)
 	};
 }
 
-/*class Round : IOp
+class Round : IOp
 {
-	public Variable Left = null;
-	public Variable Right = null;
+	public IOp Left = null;
+	public IOp Right = null;
 	
-	public Round(Variable _variable)
+	public Round(IOp _variable)
 	{
 		Left = _variable;
 	}
 	
-	public List<Variable> Run()
+	public Round(IOp _left, IOp _right)
 	{
-		if (Previous is not null) Variables = Previous.Run();
-	
-		foreach(var v in Variables)
-			v.Collapse();
-		
-		return Variables;
+		Left = _left;
+		Right = _right;
 	}
-}*/
+	
+	public int Execute(List<int> context)
+	{
+		throw new NotImplementedException();
+	}
+	
+	public List<int> GetResults()
+	{
+		var result = new List<int>();
+		var previous = new List<int>();
+		
+		if (Left is Round round)
+			previous = round.GetResults();
+		else if (Left is Variable variable)
+			previous = variable.GetResults(previous);
+		else
+			previous.Add(Left.Execute(previous));
+		
+		if (Right is Variable variable2)
+			result.AddRange(variable2.GetResults(previous));
+		else if (Right is not null)
+			result.Add(Right.Execute(previous));
+		else
+			result.AddRange(previous);
+		
+		return result;
+	}
+}
 
 class Variable : IOp
 {
@@ -222,19 +258,19 @@ class Variable : IOp
 		Right = _right;
 	}
 	
-	public int Execute() => Right.Execute();
+	public int Execute(List<int> context) => Right.Execute(context);
 	
-	public List<int> GetResults()
+	public List<int> GetResults(List<int> previous)
 	{
 		var result = new List<int>();
 		
 		if (Left is Variable variable)
-			result.AddRange(variable.GetResults());
+			result.AddRange(variable.GetResults(previous));
 		else
-			result.Add(Left.Execute());
+			result.Add(Left.Execute(previous));
 		
 		if (Right is not null)
-			result.Add(Right.Execute());
+			result.Add(Right.Execute(previous));
 		
 		return result;
 	}
@@ -242,24 +278,36 @@ class Variable : IOp
 
 interface IOp
 {
-	int Execute();
+	int Execute(List<int> context);
 }
 
 class ValOp(int val) : IOp
 {
-	public int Execute() => val;
+	public int Execute(List<int> context) => val;
 }
 
 class RandOp(int ct, int max, Random rand) : IOp
 {
-	public int Execute() => Enumerable.Range(0, ct).Sum(i => rand.Next(max) + 1);
+	public int Execute(List<int> context) => Enumerable.Range(0, ct).Sum(i => rand.Next(max) + 1);
+}
+
+class ContextAccessOp(IOp indexOp) : IOp
+{
+	public int Execute(List<int> context)
+	{
+		var index = indexOp.Execute(context);
+		if(index < 1 || index > context.Count)
+			throw new ApplicationException($"Index [{index}] outside context!");
+		
+		return context[index - 1];
+	}
 }
 
 class CompOp(IOp left, IOp right) : IOp
 {
-	public int Execute()
+	public int Execute(List<int> context)
 	{
-		var contestants = GetContestants();
+		var contestants = GetContestants(context);
 		
 		var i = 1;
 		var max = contestants.First();
@@ -277,14 +325,14 @@ class CompOp(IOp left, IOp right) : IOp
 		
 		return maxInd;
 	}
-	private List<int> GetContestants()
+	private List<int> GetContestants(List<int> context)
 	{
 		var result = new List<int>();
 		if(left is CompOp c)
-			result.AddRange(c.GetContestants());
+			result.AddRange(c.GetContestants(context));
 		else
-			result.Add(left.Execute());
-		result.Add(right.Execute());
+			result.Add(left.Execute(context));
+		result.Add(right.Execute(context));
 		
 		return result;
 	}
@@ -292,62 +340,62 @@ class CompOp(IOp left, IOp right) : IOp
 
 class AndOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() > 0 && right.Execute() > 0 ? 1 : 0;
+	public int Execute(List<int> context) => left.Execute(context) > 0 && right.Execute(context) > 0 ? 1 : 0;
 }
 
 class OrOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() > 0 || right.Execute() > 0 ? 1 : 0;
+	public int Execute(List<int> context) => left.Execute(context) > 0 || right.Execute(context) > 0 ? 1 : 0;
 }
 
 class GreaterOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() > right.Execute() ? 1 : 0;
+	public int Execute(List<int> context) => left.Execute(context) > right.Execute(context) ? 1 : 0;
 }
 
 class GreaterOrEqualOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() >= right.Execute() ? 1 : 0;
+	public int Execute(List<int> context) => left.Execute(context) >= right.Execute(context) ? 1 : 0;
 }
 
 class LessOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() < right.Execute() ? 1 : 0;
+	public int Execute(List<int> context) => left.Execute(context) < right.Execute(context) ? 1 : 0;
 }
 
 class LessOrEqualOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() <= right.Execute() ? 1 : 0;
+	public int Execute(List<int> context) => left.Execute(context) <= right.Execute(context) ? 1 : 0;
 }
 
 class EqualOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() == right.Execute() ? 1 : 0;
+	public int Execute(List<int> context) => left.Execute(context) == right.Execute(context) ? 1 : 0;
 }
 
 class NotEqualOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() != right.Execute() ? 1 : 0;
+	public int Execute(List<int> context) => left.Execute(context) != right.Execute(context) ? 1 : 0;
 }
 
 class AddOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() + right.Execute();
+	public int Execute(List<int> context) => left.Execute(context) + right.Execute(context);
 }
 
 class SubOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() - right.Execute();
+	public int Execute(List<int> context) => left.Execute(context) - right.Execute(context);
 }
 
 class MulOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() * right.Execute();
+	public int Execute(List<int> context) => left.Execute(context) * right.Execute(context);
 }
 
 class DivOp(IOp left, IOp right) : IOp
 {
-	public int Execute() => left.Execute() / right.Execute();
+	public int Execute(List<int> context) => left.Execute(context) / right.Execute(context);
 }
 
 Token MakeToken(string raw, TokenType type)
@@ -380,6 +428,8 @@ Token MakeToken(string raw, TokenType type)
 			{
 				"(" => new Token(Tokens.BraceOpen, TokenType.Utility, raw),
 				")" => new Token(Tokens.BraceClose, TokenType.Utility, raw),
+				"[" => new Token(Tokens.SquareBracketOpen, TokenType.Utility, raw),
+				"]" => new Token(Tokens.SquareBracketClose, TokenType.Utility, raw),
 				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
 			},
 		_ => throw new ApplicationException($"UnknownType! '{type}'"),
@@ -397,6 +447,8 @@ enum Tokens
 	Unknown = 0,
 	BraceOpen = 1,
 	BraceClose,
+	SquareBracketOpen,
+	SquareBracketClose,
 	VarSeparator,
 	RoundSeparator,
 	Compare,

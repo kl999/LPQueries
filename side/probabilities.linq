@@ -7,7 +7,7 @@
 </Query>
 
 string expression =
-	"d2;d4|[1];[2];[(1<2)+1]-[1]";
+	"5d3 EACH - 2";
 	//"d52 <= 20 AND d51 <= 4 AND d50 <= 3 AND d49 <= 2 AND d48 <= 1";
 int sampleSize =
 	100_000;
@@ -86,6 +86,17 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 			return left;
 		else if (token.Value == Tokens.SquareBracketClose)
 			return left;
+		else if (token.Value == Tokens.Each)
+		{
+			var pow2 = GetBindingPower(token);
+			tokens.Dequeue(); //Consume EACH
+			token = tokens.Dequeue();
+			if(token.Type != TokenType.Operator)
+				throw new ApplicationException($"Must be operator after EACH operator! '{token.Raw}'");
+			
+			left = new EachOp(left, token, PrattParse(tokens, pow2));
+			continue;
+		}
 		else if (token.Type != TokenType.Operator)
 			throw new ApplicationException($"Incorrect token! '{token.Raw}'");
 		
@@ -123,11 +134,12 @@ int GetBindingPower(Token token)
 		Tokens.Minus => 31,
 		Tokens.Multiply => 40,
 		Tokens.Divide => 41,
+		Tokens.Each => 29,
 		_ => throw new ApplicationException($"Incorrect token! '{token}'"),
 	};
 }
 
-IOp ParseOp(Token token, IOp left, IOp right)
+internal static IOp ParseOp(Token token, IOp left, IOp right)
 {
 	return token.Value switch
 	{
@@ -153,7 +165,7 @@ IOp ParseOp(Token token, IOp left, IOp right)
 Queue<Token> GetTokens(string expr)
 {
 	var val = @"(?:(?:\d*d\d+)|\d+)";
-	var op = @"(?:\+|-|\*|/|COMP|AND|OR|>=|>|<=|<|==|!=|;|\|)";
+	var op = @"(?:\+|-|\*|/|COMP|AND|OR|>=|>|<=|<|==|!=|;|\||EACH)";
 	var util = @"(?:\(|\)|\[|\])";
 	
 	var tokens = new Queue<Token>();
@@ -289,6 +301,7 @@ class ValOp(int val) : IOp
 class RandOp(int ct, int max, Random rand) : IOp
 {
 	public int Execute(List<int> context) => Enumerable.Range(0, ct).Sum(i => rand.Next(max) + 1);
+	public List<int> GetList() => Enumerable.Range(0, ct).Select(i => rand.Next(max) + 1).ToList();
 }
 
 class ContextAccessOp(IOp indexOp) : IOp
@@ -398,6 +411,19 @@ class DivOp(IOp left, IOp right) : IOp
 	public int Execute(List<int> context) => left.Execute(context) / right.Execute(context);
 }
 
+class EachOp(IOp left, Token token, IOp right) : IOp
+{
+	public int Execute(List<int> context)
+	{
+		var randOp = left as RandOp;
+		
+		if(randOp is null)
+			throw new ApplicationException("Left hand side of EACH operator must be Random value (ex: 3d6)!");
+		
+		return randOp.GetList().Where(i => ParseOp(token, new ValOp(i), right).Execute(context) != 0).Count();
+	}
+}
+
 Token MakeToken(string raw, TokenType type)
 {
 	return type switch
@@ -422,6 +448,7 @@ Token MakeToken(string raw, TokenType type)
 				"/" => new Token(Tokens.Divide, TokenType.Operator, raw),
 				";" => new Token(Tokens.VarSeparator, TokenType.Operator, raw),
 				"|" => new Token(Tokens.RoundSeparator, TokenType.Operator, raw),
+				"EACH" => new Token(Tokens.Each, TokenType.Operator, raw),
 				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
 			},
 		TokenType.Utility => raw switch
@@ -462,6 +489,7 @@ enum Tokens
 	NotEqual,
 	Value,
 	RandomValue,
+	Each,
 	Plus,
 	Minus,
 	Multiply,

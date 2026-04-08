@@ -7,12 +7,12 @@
 </Query>
 
 string expression =
-	"5d3 EACH - 2";
+	"(1+d2)d6";
 	//"d52 <= 20 AND d51 <= 4 AND d50 <= 3 AND d49 <= 2 AND d48 <= 1";
 int sampleSize =
 	100_000;
 	//100_000_000;
-Random rand = new Random();
+static Random rand = new Random();
 
 void Main()
 {
@@ -59,7 +59,11 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 	var token = tokens.Dequeue();
 	IOp left;
 	
-	if (token.Value == Tokens.BraceOpen)
+	if (token.Value == Tokens.RandomValue)
+	{
+		left = ParseOp(token, new ValOp(1), null);
+	}
+	else if (token.Value == Tokens.BraceOpen)
 	{
 		left = PrattParse(tokens, GetBindingPower(token));
 		if(!tokens.Any() || tokens.Peek().Value != Tokens.BraceClose)
@@ -82,7 +86,13 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 	{
 		if(!tokens.Any()) break;
 		token = tokens.Peek();
-		if (token.Value == Tokens.BraceClose)
+		if (token.Value == Tokens.RandomValue)
+		{
+			left = ParseOp(token, left, null);
+			tokens.Dequeue();
+			continue;
+		}
+		else if (token.Value == Tokens.BraceClose)
 			return left;
 		else if (token.Value == Tokens.SquareBracketClose)
 			return left;
@@ -135,6 +145,7 @@ int GetBindingPower(Token token)
 		Tokens.Multiply => 40,
 		Tokens.Divide => 41,
 		Tokens.Each => 29,
+		Tokens.RandomValue => 50,
 		_ => throw new ApplicationException($"Incorrect token! '{token}'"),
 	};
 }
@@ -158,14 +169,15 @@ internal static IOp ParseOp(Token token, IOp left, IOp right)
 		Tokens.Minus => new SubOp(left, right),
 		Tokens.Multiply => new MulOp(left, right),
 		Tokens.Divide => new DivOp(left, right),
+		Tokens.RandomValue => new RandOp(left, Int32.Parse(token.Raw.Substring(1)), rand),
 		_ => throw new ApplicationException($"Incorrect expression! '{token.Raw}'"),
 	};
 }
 
 Queue<Token> GetTokens(string expr)
 {
-	var val = @"(?:(?:\d*d\d+)|\d+)";
-	var op = @"(?:\+|-|\*|/|COMP|AND|OR|>=|>|<=|<|==|!=|;|\||EACH)";
+	var val = @"(?:\d+)";
+	var op = @"(?:\+|-|\*|/|COMP|AND|OR|>=|>|<=|<|==|!=|;|\||EACH|d\d+)";
 	var util = @"(?:\(|\)|\[|\])";
 	
 	var tokens = new Queue<Token>();
@@ -198,16 +210,7 @@ Queue<Token> GetTokens(string expr)
 
 IOp ParseVal(Token token)
 {
-	if (token.Raw.StartsWith('d'))
-		return new RandOp(1, Int32.Parse(token.Raw.Substring(1)), rand);
-	var sub = token.Raw.Split('d');
-	
-	return sub.Length switch
-	{
-		1 => new ValOp(Int32.Parse(sub[0])),
-		2 => new RandOp(Int32.Parse(sub[0]), Int32.Parse(sub[1]), rand),
-		_ => throw new ApplicationException($"Incorrect expression! '{token.Raw}'"),
-	};
+	return new ValOp(Int32.Parse(token.Raw));
 }
 
 class Round : IOp
@@ -298,10 +301,10 @@ class ValOp(int val) : IOp
 	public int Execute(List<int> context) => val;
 }
 
-class RandOp(int ct, int max, Random rand) : IOp
+class RandOp(IOp left, int max, Random rand) : IOp
 {
-	public int Execute(List<int> context) => Enumerable.Range(0, ct).Sum(i => rand.Next(max) + 1);
-	public List<int> GetList() => Enumerable.Range(0, ct).Select(i => rand.Next(max) + 1).ToList();
+	public int Execute(List<int> context) => Enumerable.Range(0, left.Execute(context)).Sum(i => rand.Next(max) + 1);
+	public List<int> GetList(List<int> context) => Enumerable.Range(0, left.Execute(context)).Select(i => rand.Next(max) + 1).ToList();
 }
 
 class ContextAccessOp(IOp indexOp) : IOp
@@ -420,7 +423,7 @@ class EachOp(IOp left, Token token, IOp right) : IOp
 		if(randOp is null)
 			throw new ApplicationException("Left hand side of EACH operator must be Random value (ex: 3d6)!");
 		
-		return randOp.GetList().Where(i => ParseOp(token, new ValOp(i), right).Execute(context) != 0).Count();
+		return randOp.GetList(context).Where(i => ParseOp(token, new ValOp(i), right).Execute(context) != 0).Count();
 	}
 }
 
@@ -428,9 +431,7 @@ Token MakeToken(string raw, TokenType type)
 {
 	return type switch
 	{
-		TokenType.Value => raw.Contains("d") ?
-			new Token(Tokens.RandomValue, TokenType.Value, raw)
-			: new Token(Tokens.Value, TokenType.Value, raw),
+		TokenType.Value => new Token(Tokens.Value, TokenType.Value, raw),
 		TokenType.Operator => raw switch
 			{
 				"COMP" => new Token(Tokens.Compare, TokenType.Operator, raw),
@@ -449,7 +450,9 @@ Token MakeToken(string raw, TokenType type)
 				";" => new Token(Tokens.VarSeparator, TokenType.Operator, raw),
 				"|" => new Token(Tokens.RoundSeparator, TokenType.Operator, raw),
 				"EACH" => new Token(Tokens.Each, TokenType.Operator, raw),
-				_ => throw new ApplicationException($"Incorrect expression! '{raw}'"),
+				_ => raw.Contains("d") ?
+					new Token(Tokens.RandomValue, TokenType.Operator, raw)
+					: throw new ApplicationException($"Incorrect expression! '{raw}'"),
 			},
 		TokenType.Utility => raw switch
 			{

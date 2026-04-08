@@ -7,10 +7,12 @@
 </Query>
 
 string expression =
-	"(1+d2)d6";
+	"1|[1]|[1]";
+	//"20d6 EACH >= 4| [1]d6 EACH >= 5| [1]d6 EACH >= 3";
 	//"d52 <= 20 AND d51 <= 4 AND d50 <= 3 AND d49 <= 2 AND d48 <= 1";
 int sampleSize =
-	100_000;
+	1;
+	//100_000;
 	//100_000_000;
 static Random rand = new Random();
 
@@ -34,7 +36,7 @@ void Main()
 			results[result] = 1;
 	}
 	
-	foreach(var result in results.OrderBy(i => i.Key))
+	foreach(var result in results.OrderBy(i => i.Key.PadLeft(100, '0')))
 		$"{result.Key}: {(((decimal)result.Value) / sampleSize) * 100:0.00########} %".Dump();
 }
 
@@ -59,7 +61,9 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 	var token = tokens.Dequeue();
 	IOp left;
 	
-	if (token.Value == Tokens.RandomValue)
+	if (token.Value == Tokens.Minus)
+		left = new MulOp(new ValOp(-1), PrattParse(tokens, 50));
+	else if (token.Value == Tokens.RandomValue)
 	{
 		left = ParseOp(token, new ValOp(1), null);
 	}
@@ -125,10 +129,10 @@ int GetBindingPower(Token token)
 {
 	return token.Value switch
 	{
-		Tokens.RoundSeparator => 0,
-		Tokens.VarSeparator => 1,
-		Tokens.BraceClose => 2,
-		Tokens.BraceOpen => 3,
+		Tokens.BraceClose => 0,
+		Tokens.BraceOpen => 1,
+		Tokens.RoundSeparator => 2,
+		Tokens.VarSeparator => 3,
 		Tokens.SquareBracketClose => 4,
 		Tokens.SquareBracketOpen => 5,
 		Tokens.Compare => 10,
@@ -231,7 +235,7 @@ class Round : IOp
 	
 	public int Execute(List<int> context)
 	{
-		throw new NotImplementedException();
+		return GetResults().First();
 	}
 	
 	public List<int> GetResults()
@@ -254,6 +258,20 @@ class Round : IOp
 			result.AddRange(previous);
 		
 		return result;
+	}
+
+	public List<Round> GetRounds()
+	{
+		var rounds = new List<Round>{this};
+		
+		if (Left is Round round)
+			rounds = new (round.GetRounds()){ this };
+		if (Right is Variable variable2)
+			rounds.Add(new Round(variable2));
+		else if (Right is not null)
+			rounds.Add(new Round(Right));
+		
+		return rounds;
 	}
 }
 
@@ -299,12 +317,28 @@ interface IOp
 class ValOp(int val) : IOp
 {
 	public int Execute(List<int> context) => val;
+	
+	public override string ToString() => $"var: {val}";
 }
 
 class RandOp(IOp left, int max, Random rand) : IOp
 {
-	public int Execute(List<int> context) => Enumerable.Range(0, left.Execute(context)).Sum(i => rand.Next(max) + 1);
-	public List<int> GetList(List<int> context) => Enumerable.Range(0, left.Execute(context)).Select(i => rand.Next(max) + 1).ToList();
+	public int Execute(List<int> context)
+	{
+		var ct = left.Execute(context);
+		
+		if (ct < 0) throw new ApplicationException($"Dice count must be >= 0! Current {ct}");
+		
+		return Enumerable.Range(0, ct).Sum(i => rand.Next(max) + 1);
+	}
+	public List<int> GetList(List<int> context)
+	{
+		var ct = left.Execute(context);
+		
+		if (ct < 0) throw new ApplicationException($"Dice count must be >= 0! Current {ct}");
+		
+		return Enumerable.Range(0, ct).Select(i => rand.Next(max) + 1).ToList();
+	}
 }
 
 class ContextAccessOp(IOp indexOp) : IOp

@@ -7,12 +7,12 @@
 </Query>
 
 string expression =
-	"1|[1]|[1]";
+	"1 IF 1 == 1 GOTO 1|3";
 	//"20d6 EACH >= 4| [1]d6 EACH >= 5| [1]d6 EACH >= 3";
 	//"d52 <= 20 AND d51 <= 4 AND d50 <= 3 AND d49 <= 2 AND d48 <= 1";
 int sampleSize =
-	1;
-	//100_000;
+	//1;
+	100_000;
 	//100_000_000;
 static Random rand = new Random();
 
@@ -46,7 +46,7 @@ Round Parse(string expr)
 		.Dump()
 		;
 	
-	var parsed = PrattParse(tokens, 0);
+	var parsed = PrattParse(tokens, 0).Dump();
 	
 	if(parsed is Round round)
 		return round;
@@ -119,6 +119,7 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 		
 		tokens.Dequeue();
 		
+		$"ParseOp({token.Value}, {left}, PrattParse(tokens({tokens.Count}), {pow} + 1));".Dump();
 		left = ParseOp(token, left, PrattParse(tokens, pow + 1));
 	}
 	
@@ -132,9 +133,11 @@ int GetBindingPower(Token token)
 		Tokens.BraceClose => 0,
 		Tokens.BraceOpen => 1,
 		Tokens.RoundSeparator => 2,
-		Tokens.VarSeparator => 3,
-		Tokens.SquareBracketClose => 4,
-		Tokens.SquareBracketOpen => 5,
+		Tokens.If => 3,
+		Tokens.Goto => 4,
+		Tokens.VarSeparator => 4,
+		Tokens.SquareBracketClose => 5,
+		Tokens.SquareBracketOpen => 6,
 		Tokens.Compare => 10,
 		Tokens.Or => 11,
 		Tokens.And => 12,
@@ -174,6 +177,8 @@ internal static IOp ParseOp(Token token, IOp left, IOp right)
 		Tokens.Multiply => new MulOp(left, right),
 		Tokens.Divide => new DivOp(left, right),
 		Tokens.RandomValue => new RandOp(left, Int32.Parse(token.Raw.Substring(1)), rand),
+		Tokens.If => new IfOp(left, right),
+		Tokens.Goto => new GotoOp(left, right),
 		_ => throw new ApplicationException($"Incorrect expression! '{token.Raw}'"),
 	};
 }
@@ -181,7 +186,7 @@ internal static IOp ParseOp(Token token, IOp left, IOp right)
 Queue<Token> GetTokens(string expr)
 {
 	var val = @"(?:\d+)";
-	var op = @"(?:\+|-|\*|/|COMP|AND|OR|>=|>|<=|<|==|!=|;|\||EACH|d\d+)";
+	var op = @"(?:\+|-|\*|/|COMP|AND|OR|>=|>|<=|<|==|!=|;|\||EACH|d\d+|IF|GOTO)";
 	var util = @"(?:\(|\)|\[|\])";
 	
 	var tokens = new Queue<Token>();
@@ -240,7 +245,9 @@ class Round : IOp
 	
 	public List<int> GetResults()
 	{
-		var rounds = GetRounds();
+		var rounds = GetRounds()
+			.Dump("rounds")
+			;
 		List<int> previous = new ();
 		
 		for(int i = 0; i < rounds.Count; i++)
@@ -331,6 +338,23 @@ class RandOp(IOp left, int max, Random rand) : IOp
 		
 		return Enumerable.Range(0, ct).Select(i => rand.Next(max) + 1).ToList();
 	}
+}
+
+class IfOp : Variable
+{
+	public IfOp(IOp _op) : base(_op)
+	{
+	}
+	
+	public IfOp(IOp _left, IOp _right) : base(_left, _right)
+	{
+	}
+}
+
+class GotoOp(IOp left, IOp right) : IOp
+{
+	public int Execute(List<int> context) => throw new NotImplementedException();
+	public override string ToString() => $"{left} goto: {right}";
 }
 
 class ContextAccessOp(IOp indexOp) : IOp
@@ -477,6 +501,8 @@ Token MakeToken(string raw, TokenType type)
 				";" => new Token(Tokens.VarSeparator, TokenType.Operator, raw),
 				"|" => new Token(Tokens.RoundSeparator, TokenType.Operator, raw),
 				"EACH" => new Token(Tokens.Each, TokenType.Operator, raw),
+				"IF" => new Token(Tokens.If, TokenType.Operator, raw),
+				"GOTO" => new Token(Tokens.Goto, TokenType.Operator, raw),
 				_ => raw.Contains("d") ?
 					new Token(Tokens.RandomValue, TokenType.Operator, raw)
 					: throw new ApplicationException($"Incorrect expression! '{raw}'"),
@@ -506,6 +532,8 @@ enum Tokens
 	BraceClose,
 	SquareBracketOpen,
 	SquareBracketClose,
+	If,
+	Goto,
 	VarSeparator,
 	RoundSeparator,
 	Compare,

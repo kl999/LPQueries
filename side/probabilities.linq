@@ -7,7 +7,8 @@
 </Query>
 
 string expression =
-	"1 IF 1 == 1 GOTO 1|3";
+	"(1;2;3) EACH > 1";
+	//"(0;0| [1];d6 | [1]+[2];[2] IF [2] == 6 GOTO 2 | [1]) > 6";
 	//"20d6 EACH >= 4| [1]d6 EACH >= 5| [1]d6 EACH >= 3";
 	//"d52 <= 20 AND d51 <= 4 AND d50 <= 3 AND d49 <= 2 AND d48 <= 1";
 int sampleSize =
@@ -21,7 +22,7 @@ void Main()
 	var lastRound = Parse(expression)
 		.Dump(includePrivate:true)//new Var(new Var(Op), Op)
 		;
-	
+		
 	var results = new Dictionary<string, long>();
 	
 	for(int i = 0; i < sampleSize; i++)
@@ -43,10 +44,10 @@ void Main()
 Round Parse(string expr)
 {
 	var tokens = GetTokens(expr)
-		.Dump()
+		//.Dump()
 		;
 	
-	var parsed = PrattParse(tokens, 0).Dump();
+	var parsed = PrattParse(tokens, 0);
 	
 	if(parsed is Round round)
 		return round;
@@ -119,7 +120,7 @@ IOp PrattParse(Queue<Token> tokens, int minPow)
 		
 		tokens.Dequeue();
 		
-		$"ParseOp({token.Value}, {left}, PrattParse(tokens({tokens.Count}), {pow} + 1));".Dump();
+		//$"ParseOp({token.Value}, {left}, PrattParse(tokens({tokens.Count}), {pow} + 1));".Dump();
 		left = ParseOp(token, left, PrattParse(tokens, pow + 1));
 	}
 	
@@ -222,6 +223,11 @@ IOp ParseVal(Token token)
 	return new ValOp(Int32.Parse(token.Raw));
 }
 
+interface IOp
+{
+	int Execute(List<int> context);
+}
+
 class Round : IOp
 {
 	public IOp Left = null;
@@ -240,19 +246,34 @@ class Round : IOp
 	
 	public int Execute(List<int> context)
 	{
-		throw new NotImplementedException();//return GetResults().First();
+		return GetResults().First();
 	}
 	
 	public List<int> GetResults()
 	{
 		var rounds = GetRounds()
-			.Dump("rounds")
+			//.Dump("rounds")
 			;
 		List<int> previous = new ();
 		
-		for(int i = 0; i < rounds.Count; i++)
+		for(int i = 0; i < rounds.Count;)
 		{
 			previous = rounds[i].GetResults(previous);
+			if (rounds[i] is IfOp if1)
+			{
+				var jump = if1.GetJump(previous);
+				if (jump is null)
+				{
+					i++;
+					continue;
+				}
+				if (jump < 1 || jump > rounds.Count)
+					throw new ApplicationException($"Jump {jump} is out of bounds! round {i}");
+				
+				i = jump.Value - 1;
+			}
+			else
+				i++;
 		}
 		
 		return previous;
@@ -290,9 +311,9 @@ class Variable : IOp
 		Right = _right;
 	}
 	
-	public int Execute(List<int> context) => Right is null ? Left.Execute(context) : Right.Execute(context);
+	public virtual int Execute(List<int> context) => Right is null ? Left.Execute(context) : Right.Execute(context);
 	
-	public List<int> GetResults(List<int> previous)
+	public virtual List<int> GetResults(List<int> previous)
 	{
 		var result = new List<int>();
 		
@@ -308,9 +329,51 @@ class Variable : IOp
 	}
 }
 
-interface IOp
+class IfOp : Variable
 {
-	int Execute(List<int> context);
+	public IfOp(IOp _op) : base(_op)
+	{
+	}
+	
+	public IfOp(IOp _left, IOp _right) : base(_left, _right)
+	{
+	}
+	
+	public override int Execute(List<int> context) => Left.Execute(context);
+	
+	public override List<int> GetResults(List<int> previous)
+	{
+		var result = new List<int>();
+		
+		if (Left is Variable variable)
+			result.AddRange(variable.GetResults(previous));
+		else
+			result.Add(Left.Execute(previous));
+		
+		return result;
+	}
+	
+	public int? GetJump(List<int> context)
+	{
+		var goto1 = Right as GotoOp;
+		
+		if(goto1 is null) throw new ApplicationException("No GOTO found!");
+		
+		if(goto1.ShouldJump(context))
+			return goto1.JumpTarget(context);
+		else
+			return null;
+	}
+}
+
+class GotoOp(IOp left, IOp right) : IOp
+{
+	public int Execute(List<int> context) => throw new NotImplementedException();
+	
+	public bool ShouldJump(List<int> context) => left.Execute(context) != 0;
+	public int JumpTarget(List<int> context) => right.Execute(context);
+	
+	public override string ToString() => $"{left} goto: {right}";
 }
 
 class ValOp(int val) : IOp
@@ -338,23 +401,6 @@ class RandOp(IOp left, int max, Random rand) : IOp
 		
 		return Enumerable.Range(0, ct).Select(i => rand.Next(max) + 1).ToList();
 	}
-}
-
-class IfOp : Variable
-{
-	public IfOp(IOp _op) : base(_op)
-	{
-	}
-	
-	public IfOp(IOp _left, IOp _right) : base(_left, _right)
-	{
-	}
-}
-
-class GotoOp(IOp left, IOp right) : IOp
-{
-	public int Execute(List<int> context) => throw new NotImplementedException();
-	public override string ToString() => $"{left} goto: {right}";
 }
 
 class ContextAccessOp(IOp indexOp) : IOp
@@ -470,11 +516,20 @@ class EachOp(IOp left, Token token, IOp right) : IOp
 	public int Execute(List<int> context)
 	{
 		var randOp = left as RandOp;
+		var var1 = left as Variable;
 		
-		if(randOp is null)
-			throw new ApplicationException("Left hand side of EACH operator must be Random value (ex: 3d6)!");
+		if(randOp is not null)
+		{
+			return randOp.GetList(context).Where(i => ParseOp(token, new ValOp(i), right).Execute(context) != 0).Count();
+		}
+		else if (var1 is not null)
+		{
+			return var1.GetResults(context).Where(i => ParseOp(token, new ValOp(i), right).Execute(context) != 0).Count();
+		}
+		else
+			throw new ApplicationException("Left hand side of EACH operator must be Random value (ex: '3d6') or values list (ex: '(1;2;3)')!");
 		
-		return randOp.GetList(context).Where(i => ParseOp(token, new ValOp(i), right).Execute(context) != 0).Count();
+		
 	}
 }
 

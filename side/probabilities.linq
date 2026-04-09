@@ -235,41 +235,33 @@ class Round : IOp
 	
 	public int Execute(List<int> context)
 	{
-		return GetResults().First();
+		throw new NotImplementedException();//return GetResults().First();
 	}
 	
 	public List<int> GetResults()
 	{
-		var result = new List<int>();
-		var previous = new List<int>();
+		var rounds = GetRounds();
+		List<int> previous = new ();
 		
-		if (Left is Round round)
-			previous = round.GetResults();
-		else if (Left is Variable variable)
-			previous = variable.GetResults(previous);
-		else
-			previous.Add(Left.Execute(previous));
+		for(int i = 0; i < rounds.Count; i++)
+		{
+			previous = rounds[i].GetResults(previous);
+		}
 		
-		if (Right is Variable variable2)
-			result.AddRange(variable2.GetResults(previous));
-		else if (Right is not null)
-			result.Add(Right.Execute(previous));
-		else
-			result.AddRange(previous);
-		
-		return result;
+		return previous;
 	}
 
-	public List<Round> GetRounds()
+	public List<Variable> GetRounds()
 	{
-		var rounds = new List<Round>{this};
+		var rounds = new List<Variable>();
 		
 		if (Left is Round round)
-			rounds = new (round.GetRounds()){ this };
-		if (Right is Variable variable2)
-			rounds.Add(new Round(variable2));
-		else if (Right is not null)
-			rounds.Add(new Round(Right));
+			rounds.AddRange(round.GetRounds());
+		else
+			rounds.Add(Left is Variable v ? v : new Variable(Left));
+		
+		if (Right is not null)
+			rounds.Add(Right is Variable v2 ? v2 : new Variable(Right));
 		
 		return rounds;
 	}
@@ -291,7 +283,7 @@ class Variable : IOp
 		Right = _right;
 	}
 	
-	public int Execute(List<int> context) => Right.Execute(context);
+	public int Execute(List<int> context) => Right is null ? Left.Execute(context) : Right.Execute(context);
 	
 	public List<int> GetResults(List<int> previous)
 	{

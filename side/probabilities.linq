@@ -343,6 +343,7 @@ class ContextAccessOp(IOp indexOp) : IOp
 		
 		return context[index - 1];
 	}
+	public override string ToString() => $"ctxt: {indexOp}";
 }
 
 class CompOp(IOp left, IOp right) : IOp

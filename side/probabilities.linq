@@ -1,8 +1,10 @@
 <Query Kind="Program">
   <Namespace>Microsoft.Extensions.Configuration</Namespace>
+  <Namespace>System.Collections.Concurrent</Namespace>
   <Namespace>System.Text.Json</Namespace>
   <Namespace>System.Text.Json.Nodes</Namespace>
   <Namespace>System.Text.Json.Serialization</Namespace>
+  <Namespace>System.Threading.Tasks</Namespace>
   <IncludeAspNet>true</IncludeAspNet>
 </Query>
 
@@ -12,19 +14,29 @@ string expression =
 	//"(0;0| [1];d6 | [1]+[2];[2] IF [2] == 6 GOTO 2 | [1]) > 6";
 	//"20d6 EACH >= 4| [1]d6 EACH >= 5| [1]d6 EACH >= 3";
 	//"d52 <= 20 AND d51 <= 4 AND d50 <= 3 AND d49 <= 2 AND d48 <= 1";
+string[] compare = [
+];
 int sampleSize =
 	//1;
-	100_000;
+	3_000_000;
 	//100_000_000;
 static Random rand = new Random();
 
 void Main()
 {
-	var lastRound = Parse(expression)
-		.Dump(includePrivate:true)//new Var(new Var(Op), Op)
-		;
+	Parse(expression)//new Var(new Var(Op), Op)
+		.Dump(includePrivate:true);
+	
+	MonteCarlo(expression);
+	
+	foreach(var expr in compare)
+		MonteCarlo(expr);
+}
+void MonteCarlo(string expr)
+{
+	var lastRound = Parse(expr);
 		
-	var results = new Dictionary<string, long>();
+	var results = new ConcurrentDictionary<string, long>();
 	
 	for(int i = 0; i < sampleSize; i++)
 	{
@@ -38,6 +50,7 @@ void Main()
 			results[result] = 1;
 	}
 	
+	expr.Dump("Expr");
 	foreach(var result in results.OrderBy(i => i.Key.PadLeft(100, '0')))
 		$"{result.Key}: {(((decimal)result.Value) / sampleSize) * 100:0.00########} %".Dump();
 }

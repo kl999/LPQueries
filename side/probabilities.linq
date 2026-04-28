@@ -16,9 +16,14 @@ string expression =
 	//"20d6 EACH >= 4| [1]d6 EACH >= 5| [1]d6 EACH >= 3";
 	//"d52 <= 20 AND d51 <= 4 AND d50 <= 3 AND d49 <= 2 AND d48 <= 1";
 string[] compare = [
+	"d6      > 5", //i-t 94-16
+	"2d6 - 1 > 5", //t-t 42-58
+	"2d6 - 1 > 2", //t-i 8-92
+	"d6      > 2", //i-i 33-67
 ];
 int sampleSize =
 	//1;
+	//100_000;
 	3_000_000;
 	//100_000_000;
 static Random rand = new Random();
@@ -37,19 +42,33 @@ void MonteCarlo(string expr)
 {
 	var lastRound = Parse(expr);
 		
-	var results = new ConcurrentDictionary<string, long>();
+	var results = new Dictionary<string, long>();
+	var locker = new Object();
 	
-	for(int i = 0; i < sampleSize; i++)
+	Parallel.For(0, sampleSize,
+	() => new Dictionary<string, int>(),
+	(i, state, local) =>
 	{
 		var result = String.Join(";", lastRound.GetResults());
 		
-		//$"{result}".Dump();
-		
-		if(results.ContainsKey(result))
-			results[result]++;
+		if(local.ContainsKey(result))
+			local[result]++;
 		else
-			results[result] = 1;
-	}
+			local[result] = 1;
+		
+		return local;
+	},
+	local =>
+	{
+		lock(locker)
+		{
+			foreach(var kvp in local)
+				if(results.ContainsKey(kvp.Key))
+					results[kvp.Key] += kvp.Value;
+				else
+					results[kvp.Key] = kvp.Value;
+		}
+	});
 	
 	expr.Dump("Expr");
 	foreach(var result in results.OrderBy(i => i.Key.PadLeft(100, '0')))

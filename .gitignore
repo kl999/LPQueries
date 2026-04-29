@@ -166,3 +166,4 @@ $RECYCLE.BIN/
 # VS Temp files
 .vs
 
+/RoamingUserOptions.xml

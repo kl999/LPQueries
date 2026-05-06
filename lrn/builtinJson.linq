@@ -62,6 +62,28 @@ JsonSerializer.Serialize(c, new JsonSerializerOptions()
     WriteIndented = true
 }).Dump();
 
+var dic = new Dictionary<int, string>
+{
+	[1] = "a",
+	[2] = "b",
+};
+
+JsonSerializer.Serialize(dic, new System.Text.Json.JsonSerializerOptions 
+{
+	ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
+	WriteIndented = true
+}).Dump("Dictionary<int, string>");
+
+str = """
+{
+  "1": "a",
+  "2": "b",
+  "2": "c"
+}
+""";
+
+JsonSerializer.Deserialize<Dictionary<int, string>>(str).Dump();
+
 class A
 {
 	public string a { get; set; }
